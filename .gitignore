@@ -51,3 +51,4 @@ docs/
 lib/firebase_options.dart
 .claude/
 CLAUDE.md
+.env
