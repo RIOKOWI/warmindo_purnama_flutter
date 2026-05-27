@@ -18,4 +18,8 @@ class ApiConstants {
   // Product endpoints
   static const String products = 'products';
   static const String categories = 'categories';
+
+  // Cart endpoints
+  static const String cart = 'cart';
+  static String cartItem(int cartItemId) => 'cart/$cartItemId';
 }
