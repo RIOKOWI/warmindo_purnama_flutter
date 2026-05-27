@@ -9,6 +9,10 @@ import 'features/auth/domain/auth_status.dart';
 import 'features/auth/domain/repositories/auth_repository_impl.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
+import 'features/product/data/datasources/product_remote_datasource.dart';
+import 'features/product/domain/repositories/product_repository_impl.dart';
+import 'features/product/presentation/pages/home_page.dart';
+import 'features/product/presentation/providers/product_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,11 +26,18 @@ Future<void> main() async {
   final authRemoteDataSource = AuthRemoteDataSource(dioClient);
   final authRepository = AuthRepositoryImpl(authRemoteDataSource, secureStorage);
 
+  // Product dependencies
+  final productRemoteDataSource = ProductRemoteDataSource(dioClient);
+  final productRepository = ProductRepositoryImpl(productRemoteDataSource);
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authRepository)..checkAuthStatus(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ProductProvider(productRepository),
         ),
       ],
       child: const MyApp(),
@@ -73,8 +84,13 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Navigate ke dashboard jika authenticated
+          // Navigate berdasarkan role jika authenticated
           if (authProvider.isAuthenticated) {
+            // Customer role -> show product menu (HomePage)
+            if (authProvider.role == 'customer') {
+              return const _CustomerHomePage();
+            }
+            // Admin/Kasir -> show dashboard
             return const _DashboardPage();
           }
 
@@ -84,6 +100,16 @@ class MyApp extends StatelessWidget {
       ),
       onGenerateRoute: AppRouter.generateRoute,
     );
+  }
+}
+
+/// Customer home page with auth guard (customer role only)
+class _CustomerHomePage extends StatelessWidget {
+  const _CustomerHomePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const HomePage();
   }
 }
 
