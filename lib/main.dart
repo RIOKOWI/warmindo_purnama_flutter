@@ -9,6 +9,9 @@ import 'features/auth/domain/auth_status.dart';
 import 'features/auth/domain/repositories/auth_repository_impl.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
+import 'features/cart/data/datasources/cart_remote_datasource.dart';
+import 'features/cart/domain/repositories/cart_repository_impl.dart';
+import 'features/cart/presentation/providers/cart_provider.dart';
 import 'features/product/data/datasources/product_remote_datasource.dart';
 import 'features/product/domain/repositories/product_repository_impl.dart';
 import 'features/product/presentation/pages/home_page.dart';
@@ -30,6 +33,10 @@ Future<void> main() async {
   final productRemoteDataSource = ProductRemoteDataSource(dioClient);
   final productRepository = ProductRepositoryImpl(productRemoteDataSource);
 
+  // Cart dependencies
+  final cartRemoteDataSource = CartRemoteDataSource(dioClient);
+  final cartRepository = CartRepositoryImpl(cartRemoteDataSource);
+
   runApp(
     MultiProvider(
       providers: [
@@ -38,6 +45,9 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => ProductProvider(productRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(cartRepository),
         ),
       ],
       child: const MyApp(),
