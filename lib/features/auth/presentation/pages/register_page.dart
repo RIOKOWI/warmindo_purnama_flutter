@@ -61,7 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+      Navigator.pushReplacementNamed(context, AppRouter.home);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
