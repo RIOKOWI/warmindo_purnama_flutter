@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/routes/app_router.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../providers/product_provider.dart';
 import '../widgets/category_filter_widget.dart';
@@ -26,6 +27,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Menu'),
@@ -52,6 +55,10 @@ class _HomePageState extends State<HomePage> {
                   ),
               ],
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => auth.logout(),
           ),
         ],
       ),
