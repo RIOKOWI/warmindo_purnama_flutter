@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/register_page.dart';
+import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
 
 /// App router with named routes configuration.
 class AppRouter {
@@ -10,6 +11,7 @@ class AppRouter {
   static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
+  static const String home = '/home';
   static const String dashboard = '/dashboard';
 
   /// Route generator function
@@ -19,6 +21,8 @@ class AppRouter {
         return _buildRoute(const LoginPage(), settings);
       case register:
         return _buildRoute(const RegisterPage(), settings);
+      case home:
+        return _buildRoute(const HomePage(), settings);
       case dashboard:
         return _buildRoute(const _DashboardPage(), settings);
       default:
