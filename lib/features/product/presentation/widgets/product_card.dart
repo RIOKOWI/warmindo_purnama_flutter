@@ -47,10 +47,22 @@ class ProductCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
+                // Description
+                Text(
+                  product.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
                 // Price
                 Text(
                   'Rp ${priceFormat.format(product.price)}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                // Stock info
+                Text(
+                  product.isAvailable ? 'Stok: ${product.stock}' : 'Habis',
                 ),
                 const SizedBox(height: 8),
                 // Add button - disabled if out of stock
