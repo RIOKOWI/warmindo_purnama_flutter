@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import '../../../auth/domain/auth_status.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/data/models/user_model.dart';
@@ -9,6 +10,7 @@ import '../../../auth/data/models/user_model.dart';
 /// Manages login, register, logout, and auto-login functionality.
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _authRepository;
+  final Logger _log = Logger();
 
   AuthProvider(this._authRepository);
 
@@ -126,7 +128,7 @@ class AuthProvider extends ChangeNotifier {
       await _authRepository.logout();
     } catch (e) {
       // Best effort - continue even if logout request fails
-      debugPrint('Logout request failed: $e');
+      _log.w('[AuthProvider] Logout request failed: $e');
     }
 
     _currentUser = null;

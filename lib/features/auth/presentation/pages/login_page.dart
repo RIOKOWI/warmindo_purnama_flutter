@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/routes/app_router.dart';
 import '../providers/auth_provider.dart';
-import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 
 /// Login page with email and password form.
 class LoginPage extends StatefulWidget {
@@ -35,9 +35,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (!mounted) return;
 
-    if (success) {
-      Navigator.pushReplacementNamed(context, AppRouter.dashboard);
-    } else {
+    if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(auth.errorMessage ?? 'Login gagal'),
@@ -45,6 +43,8 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
+    // Redirect berdasarkan role ditangani di main.dart
+    // via Consumer<AuthProvider> yang akan rebuild saat isAuthenticated berubah
   }
 
   @override
