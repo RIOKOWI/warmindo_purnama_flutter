@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../data/models/product_model.dart';
 
 /// Card widget displaying a single product
@@ -68,7 +70,9 @@ class ProductCard extends StatelessWidget {
   }
 
   void _addToCart(BuildContext context) {
-    // TODO: Integrate with CartProvider
+    final cart = context.read<CartProvider>();
+    cart.addItem(product.id);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product.name} ditambahkan ke keranjang'),
