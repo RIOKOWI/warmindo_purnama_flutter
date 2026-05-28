@@ -12,6 +12,12 @@ import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/cart/data/datasources/cart_remote_datasource.dart';
 import 'features/cart/domain/repositories/cart_repository_impl.dart';
 import 'features/cart/presentation/providers/cart_provider.dart';
+import 'features/checkout/data/datasources/checkout_remote_datasource.dart';
+import 'features/checkout/domain/repositories/checkout_repository_impl.dart';
+import 'features/checkout/presentation/providers/checkout_provider.dart';
+import 'features/payment/data/datasources/payment_remote_datasource.dart';
+import 'features/payment/domain/repositories/payment_repository_impl.dart';
+import 'features/payment/presentation/providers/payment_provider.dart';
 import 'features/product/data/datasources/product_remote_datasource.dart';
 import 'features/product/domain/repositories/product_repository_impl.dart';
 import 'features/product/presentation/pages/home_page.dart';
@@ -37,6 +43,14 @@ Future<void> main() async {
   final cartRemoteDataSource = CartRemoteDataSource(dioClient);
   final cartRepository = CartRepositoryImpl(cartRemoteDataSource);
 
+  // Checkout dependencies
+  final checkoutRemoteDataSource = CheckoutRemoteDataSource(dioClient);
+  final checkoutRepository = CheckoutRepositoryImpl(dataSource: checkoutRemoteDataSource);
+
+  // Payment dependencies
+  final paymentRemoteDataSource = PaymentRemoteDataSource(dioClient);
+  final paymentRepository = PaymentRepositoryImpl(dataSource: paymentRemoteDataSource);
+
   runApp(
     MultiProvider(
       providers: [
@@ -48,6 +62,12 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => CartProvider(cartRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CheckoutProvider(repository: checkoutRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PaymentProvider(repository: paymentRepository),
         ),
       ],
       child: const MyApp(),
