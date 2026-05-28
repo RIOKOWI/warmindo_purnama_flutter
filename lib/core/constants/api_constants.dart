@@ -22,4 +22,15 @@ class ApiConstants {
   // Cart endpoints
   static const String cart = 'cart';
   static String cartItem(int cartItemId) => 'cart/$cartItemId';
+
+  // Order endpoints
+  static const String orders = 'orders';
+  static String orderPayment(int orderId) => 'orders/$orderId/payment';
+
+  // Payment endpoints
+  static String paymentDetails(int paymentId) => 'payments/$paymentId';
+
+  // Checkout endpoints
+  static const String orderTypes = 'order-types';
+  static const String tablesAvailable = 'tables/available';
 }
