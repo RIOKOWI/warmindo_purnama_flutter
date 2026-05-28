@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:warmindo_purnama_flutter/features/cart/data/datasources/cart_remote_datasource.dart';
 import 'package:warmindo_purnama_flutter/features/cart/data/models/cart_item_model.dart';
 import 'package:warmindo_purnama_flutter/features/cart/domain/repositories/cart_repository_impl.dart';
 

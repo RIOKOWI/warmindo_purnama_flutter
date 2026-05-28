@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:warmindo_purnama_flutter/features/cart/data/models/cart_item_model.dart';
-import 'package:warmindo_purnama_flutter/features/cart/domain/repositories/cart_repository.dart';
 import 'package:warmindo_purnama_flutter/features/cart/presentation/providers/cart_provider.dart';
 
 // Generate with: dart run build_runner build --delete-conflicting-outputs
