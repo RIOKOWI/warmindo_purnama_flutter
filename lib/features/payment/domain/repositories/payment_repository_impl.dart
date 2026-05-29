@@ -1,6 +1,6 @@
 import 'package:logger/logger.dart';
 import '../../data/datasources/payment_remote_datasource.dart';
-import '../../data/models/payment_details_model.dart';
+import '../../data/models/payment_model.dart';
 import '../../data/models/create_payment_request_model.dart';
 import 'payment_repository.dart';
 
@@ -13,7 +13,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
   final Logger _log = Logger();
 
   @override
-  Future<PaymentDetailsModel> createPayment({
+  Future<PaymentModel> createPayment({
     required int orderId,
     required CreatePaymentRequestModel request,
   }) async {
@@ -22,7 +22,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
     }
     _log.i('[PaymentRepositoryImpl] Creating payment for order $orderId...');
     try {
-      final payment = await _dataSource.createPayment(
+      final payment = await _dataSource!.createPayment(
         orderId: orderId,
         request: request,
       );
@@ -35,17 +35,16 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<PaymentDetailsModel> getPaymentDetails(int paymentId) async {
+  Future<PaymentModel> getPaymentDetail(int paymentId) async {
     if (_dataSource == null) {
       throw Exception('PaymentRemoteDataSource not initialized');
     }
-    _log.i('[PaymentRepositoryImpl] Fetching payment details for $paymentId...');
+    // Silent log - don't throw exception as this is called during polling
     try {
-      final payment = await _dataSource.getPaymentDetails(paymentId);
-      _log.i('[PaymentRepositoryImpl] Payment details fetched');
+      final payment = await _dataSource!.getPaymentDetail(paymentId);
       return payment;
     } catch (e, st) {
-      _log.e('[PaymentRepositoryImpl] Failed to fetch payment details', error: e, stackTrace: st);
+      _log.w('[PaymentRepositoryImpl] Failed to get payment detail', error: e, stackTrace: st);
       rethrow;
     }
   }
