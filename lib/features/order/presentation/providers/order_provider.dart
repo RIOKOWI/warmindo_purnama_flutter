@@ -1,13 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import '../../../checkout/data/models/order_model.dart';
+import '../../data/datasources/order_remote_datasource.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../../domain/repositories/order_repository_impl.dart';
 
 /// Provider for order state management
 class OrderProvider extends ChangeNotifier {
   OrderProvider({OrderRepository? repository})
-      : _repository = repository ?? OrderRepositoryImpl();
+      : _repository = repository ?? OrderRepositoryImpl(
+            dataSource: OrderRemoteDataSource(
+              throw StateError('DioClient must be provided via main.dart'),
+            ),
+          );
 
   final OrderRepository _repository;
   final Logger _log = Logger();
