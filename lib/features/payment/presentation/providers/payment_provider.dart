@@ -85,6 +85,17 @@ class PaymentProvider extends ChangeNotifier {
     }
   }
 
+  /// Set an existing payment (from order detail page)
+  /// This skips the payment method selector and shows the QR/VA directly
+  void setExistingPayment(PaymentModel payment) {
+    _log.i('[PaymentProvider] Setting existing payment: ${payment.id}');
+    _payment = payment;
+    _selectedMethod = paymentMethodFromString(payment.paymentMethod);
+    _startCountdown();
+    _startPolling();
+    notifyListeners();
+  }
+
   /// Start polling for payment status updates
   void _startPolling() {
     _log.i('[PaymentProvider] Starting polling...');
