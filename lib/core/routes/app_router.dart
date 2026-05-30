@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
+import 'package:warmindo_purnama_flutter/core/services/secure_storage.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/register_page.dart';
 import 'package:warmindo_purnama_flutter/features/cart/presentation/pages/cart_page.dart';
 import 'package:warmindo_purnama_flutter/features/checkout/presentation/pages/checkout_page.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_detail_page.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
+import 'package:warmindo_purnama_flutter/features/payment/data/datasources/payment_remote_datasource.dart';
+import 'package:warmindo_purnama_flutter/features/payment/domain/repositories/payment_repository_impl.dart';
 import 'package:warmindo_purnama_flutter/features/payment/presentation/pages/payment_page.dart';
+import 'package:warmindo_purnama_flutter/features/payment/presentation/providers/payment_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
 
 /// App router with named routes configuration.
@@ -39,7 +45,17 @@ class AppRouter {
         return _buildRoute(const CheckoutPage(), settings);
       case payment:
         final orderId = settings.arguments as int;
-        return _buildRoute(PaymentPage(orderId: orderId), settings);
+        // Create scoped PaymentProvider for each payment session
+        final dioClient = DioClient(SecureStorage());
+        final paymentDataSource = PaymentRemoteDataSource(dioClient);
+        final paymentRepository = PaymentRepositoryImpl(dataSource: paymentDataSource);
+        return _buildRoute(
+          ChangeNotifierProvider(
+            create: (_) => PaymentProvider(repository: paymentRepository),
+            child: PaymentPage(orderId: orderId),
+          ),
+          settings,
+        );
       case orderList:
         return _buildRoute(const OrderListPage(), settings);
       case orderDetail:
