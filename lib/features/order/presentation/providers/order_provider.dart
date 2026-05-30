@@ -1,6 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import '../../../checkout/data/models/order_model.dart';
+import '../../../../core/services/dio_client.dart';
+import '../../../../core/services/secure_storage.dart';
+import '../../../payment/data/datasources/payment_remote_datasource.dart';
+import '../../../payment/data/models/payment_model.dart';
+import '../../../payment/domain/repositories/payment_repository_impl.dart';
 import '../../data/datasources/order_remote_datasource.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../../domain/repositories/order_repository_impl.dart';
@@ -23,6 +28,7 @@ class OrderProvider extends ChangeNotifier {
   bool _isLoadingList = false;
   bool _isLoadingDetail = false;
   bool _isCancelling = false;
+  bool _isLoadingPayment = false;
   String? _errorMessage;
   int _currentPage = 1;
   bool _hasNextPage = false;
@@ -33,6 +39,7 @@ class OrderProvider extends ChangeNotifier {
   bool get isLoadingList => _isLoadingList;
   bool get isLoadingDetail => _isLoadingDetail;
   bool get isCancelling => _isCancelling;
+  bool get isLoadingPayment => _isLoadingPayment;
   String? get errorMessage => _errorMessage;
   bool get hasNextPage => _hasNextPage;
 
@@ -125,6 +132,46 @@ class OrderProvider extends ChangeNotifier {
       return false;
     } finally {
       _isCancelling = false;
+      notifyListeners();
+    }
+  }
+
+  /// Get existing payment detail to validate before navigating to payment page
+  /// Returns the PaymentModel if valid, null if invalid
+  Future<PaymentModel?> getExistingPayment(int paymentId) async {
+    _isLoadingPayment = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _log.i('[OrderProvider] Getting existing payment detail: $paymentId');
+      final secureStorage = SecureStorage();
+      final paymentRepo = PaymentRepositoryImpl(
+        dataSource: PaymentRemoteDataSource(DioClient(secureStorage)),
+      );
+      final payment = await paymentRepo.getPaymentDetail(paymentId);
+
+      if (payment.isCompleted) {
+        _errorMessage = 'Pesanan ini sudah dibayar';
+        _log.w('[OrderProvider] Payment already completed: $paymentId');
+        return null;
+      }
+
+      if (payment.isExpired) {
+        _errorMessage = 'Waktu pembayaran sudah habis. Silakan buat pesanan baru.';
+        _log.w('[OrderProvider] Payment expired: $paymentId');
+        return null;
+      }
+
+      // Payment still pending - safe to navigate
+      _log.i('[OrderProvider] Payment is pending: $paymentId');
+      return payment;
+    } catch (e, st) {
+      _log.e('[OrderProvider] Gagal ambil payment detail', error: e, stackTrace: st);
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return null;
+    } finally {
+      _isLoadingPayment = false;
       notifyListeners();
     }
   }
