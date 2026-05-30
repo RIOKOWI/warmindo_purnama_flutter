@@ -15,11 +15,9 @@ import 'features/cart/presentation/providers/cart_provider.dart';
 import 'features/checkout/data/datasources/checkout_remote_datasource.dart';
 import 'features/checkout/domain/repositories/checkout_repository_impl.dart';
 import 'features/checkout/presentation/providers/checkout_provider.dart';
+import 'features/order/data/datasources/order_remote_datasource.dart';
 import 'features/order/domain/repositories/order_repository_impl.dart';
 import 'features/order/presentation/providers/order_provider.dart';
-import 'features/payment/data/datasources/payment_remote_datasource.dart';
-import 'features/payment/domain/repositories/payment_repository_impl.dart';
-import 'features/payment/presentation/providers/payment_provider.dart';
 import 'features/product/data/datasources/product_remote_datasource.dart';
 import 'features/product/domain/repositories/product_repository_impl.dart';
 import 'features/product/presentation/pages/home_page.dart';
@@ -49,12 +47,9 @@ Future<void> main() async {
   final checkoutRemoteDataSource = CheckoutRemoteDataSource(dioClient);
   final checkoutRepository = CheckoutRepositoryImpl(dataSource: checkoutRemoteDataSource);
 
-  // Payment dependencies
-  final paymentRemoteDataSource = PaymentRemoteDataSource(dioClient);
-  final paymentRepository = PaymentRepositoryImpl(dataSource: paymentRemoteDataSource);
-
   // Order dependencies
-  final orderRepository = OrderRepositoryImpl(dioClient: dioClient);
+  final orderRemoteDataSource = OrderRemoteDataSource(dioClient);
+  final orderRepository = OrderRepositoryImpl(dataSource: orderRemoteDataSource);
 
   runApp(
     MultiProvider(
@@ -70,9 +65,6 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => CheckoutProvider(repository: checkoutRepository),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => PaymentProvider(repository: paymentRepository),
         ),
         ChangeNotifierProvider(
           create: (_) => OrderProvider(repository: orderRepository),
