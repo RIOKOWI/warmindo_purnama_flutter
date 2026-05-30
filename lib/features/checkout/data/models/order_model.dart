@@ -13,6 +13,7 @@ class OrderModel extends Equatable {
   final String status;
   final String? notes;
   final List<OrderItemModel> orderItems;
+  final Map<String, dynamic>? payment;
 
   const OrderModel({
     required this.id,
@@ -25,6 +26,7 @@ class OrderModel extends Equatable {
     required this.status,
     this.notes,
     required this.orderItems,
+    this.payment,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class OrderModel extends Equatable {
       status: json['status'] as String,
       notes: json['notes'] as String?,
       orderItems: orderItems,
+      payment: json['payment'] as Map<String, dynamic>?,
     );
   }
 
@@ -61,6 +64,7 @@ class OrderModel extends Equatable {
       'status': status,
       'notes': notes,
       'order_items': orderItems.map((item) => item.toJson()).toList(),
+      if (payment != null) 'payment': payment,
     };
   }
 
@@ -76,5 +80,6 @@ class OrderModel extends Equatable {
         status,
         notes,
         orderItems,
+        payment,
       ];
 }

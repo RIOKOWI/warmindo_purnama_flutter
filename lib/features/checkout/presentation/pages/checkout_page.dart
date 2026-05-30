@@ -146,7 +146,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         Navigator.pushReplacementNamed(
           context,
           AppRouter.payment,
-          arguments: orderId,
+          arguments: PaymentRouteArgs(orderId: orderId),
         );
       }
 

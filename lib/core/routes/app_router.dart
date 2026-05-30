@@ -9,10 +9,23 @@ import 'package:warmindo_purnama_flutter/features/checkout/presentation/pages/ch
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_detail_page.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
 import 'package:warmindo_purnama_flutter/features/payment/data/datasources/payment_remote_datasource.dart';
+import 'package:warmindo_purnama_flutter/features/payment/data/models/payment_model.dart';
 import 'package:warmindo_purnama_flutter/features/payment/domain/repositories/payment_repository_impl.dart';
 import 'package:warmindo_purnama_flutter/features/payment/presentation/pages/payment_page.dart';
 import 'package:warmindo_purnama_flutter/features/payment/presentation/providers/payment_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
+
+/// Arguments for payment route
+/// Can hold just orderId (new payment) or orderId + existingPayment (resuming payment)
+class PaymentRouteArgs {
+  final int orderId;
+  final PaymentModel? existingPayment;
+
+  const PaymentRouteArgs({
+    required this.orderId,
+    this.existingPayment,
+  });
+}
 
 /// App router with named routes configuration.
 class AppRouter {
@@ -44,15 +57,22 @@ class AppRouter {
       case checkout:
         return _buildRoute(const CheckoutPage(), settings);
       case payment:
-        final orderId = settings.arguments as int;
+        final args = settings.arguments as PaymentRouteArgs;
         // Create scoped PaymentProvider for each payment session
         final dioClient = DioClient(SecureStorage());
         final paymentDataSource = PaymentRemoteDataSource(dioClient);
         final paymentRepository = PaymentRepositoryImpl(dataSource: paymentDataSource);
         return _buildRoute(
           ChangeNotifierProvider(
-            create: (_) => PaymentProvider(repository: paymentRepository),
-            child: PaymentPage(orderId: orderId),
+            create: (_) {
+              final provider = PaymentProvider(repository: paymentRepository);
+              // If there's an existing payment, set it immediately
+              if (args.existingPayment != null) {
+                provider.setExistingPayment(args.existingPayment!);
+              }
+              return provider;
+            },
+            child: PaymentPage(orderId: args.orderId),
           ),
           settings,
         );
