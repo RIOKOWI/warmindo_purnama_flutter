@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/guards/auth_guard.dart';
+import '../../../../core/routes/app_router.dart';
 import '../../../checkout/data/models/order_model.dart';
 import '../providers/order_provider.dart';
 import '../widgets/order_status_badge.dart';
@@ -164,6 +165,34 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             const SizedBox(height: 16),
           ],
 
+          // Bayar button (only for pending orders with existing payment)
+          if (order.status == 'pending' && order.payment != null) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: provider.isLoadingPayment
+                    ? null
+                    : () => _onTapBayar(context, order),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: provider.isLoadingPayment
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Bayar'),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+
           // Cancel button (only for pending orders)
           if (order.status == 'pending')
             SizedBox(
@@ -245,6 +274,33 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         backgroundColor: success ? Colors.green : Colors.red,
       ),
     );
+  }
+
+  Future<void> _onTapBayar(BuildContext context, OrderModel order) async {
+    final paymentId = order.payment?['id'] as int?;
+    if (paymentId == null) return;
+
+    final payment = await context.read<OrderProvider>().getExistingPayment(paymentId);
+    if (!context.mounted) return;
+
+    if (payment != null) {
+      Navigator.pushNamed(
+        context,
+        AppRouter.payment,
+        arguments: PaymentRouteArgs(
+          orderId: order.id,
+          existingPayment: payment,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.read<OrderProvider>().errorMessage ?? 'Gagal memuat pembayaran',
+          ),
+        ),
+      );
+    }
   }
 }
 
