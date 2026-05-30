@@ -25,6 +25,8 @@ class ApiConstants {
 
   // Order endpoints
   static const String orders = 'orders';
+  static String orderDetail(int orderId) => 'orders/$orderId';
+  static String orderCancel(int orderId) => 'orders/$orderId/cancel';
   static String orderPayment(int orderId) => 'orders/$orderId/payment';
 
   // Payment endpoints
