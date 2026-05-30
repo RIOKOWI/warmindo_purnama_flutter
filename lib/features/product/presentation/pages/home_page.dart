@@ -57,6 +57,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           IconButton(
+            icon: const Icon(Icons.receipt_long),
+            onPressed: () => Navigator.pushNamed(context, AppRouter.orderList),
+            tooltip: 'Pesanan Saya',
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => auth.logout(),
           ),

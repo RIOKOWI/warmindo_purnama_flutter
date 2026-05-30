@@ -379,7 +379,7 @@ class _PaymentSuccessView extends StatelessWidget {
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
-                  AppRouter.dashboard,
+                  AppRouter.home,
                   (route) => false,
                 );
               },
@@ -428,7 +428,7 @@ class _PaymentExpiredView extends StatelessWidget {
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
-                  AppRouter.dashboard,
+                  AppRouter.home,
                   (route) => false,
                 );
               },
