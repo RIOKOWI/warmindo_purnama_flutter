@@ -45,6 +45,10 @@ class PaymentProvider extends ChangeNotifier {
 
   /// Create payment for an order
   Future<bool> createPayment(int orderId) async {
+    // Reset stale payment state at the start
+    _payment = null;
+    _errorMessage = null;
+
     if (_repository == null) {
       _errorMessage = 'Repository not initialized';
       notifyListeners();
@@ -52,7 +56,6 @@ class PaymentProvider extends ChangeNotifier {
     }
 
     _isCreating = true;
-    _errorMessage = null;
     notifyListeners();
 
     try {
@@ -61,7 +64,7 @@ class PaymentProvider extends ChangeNotifier {
         paymentMethod: _selectedMethod.value,
       );
 
-      _payment = await _repository!.createPayment(
+      _payment = await _repository.createPayment(
         orderId: orderId,
         request: request,
       );
@@ -162,7 +165,7 @@ class PaymentProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _stopTimers();
+    cleanup();
     super.dispose();
   }
 }
