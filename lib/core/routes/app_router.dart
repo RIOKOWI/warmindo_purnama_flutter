@@ -3,6 +3,8 @@ import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/register_page.dart';
 import 'package:warmindo_purnama_flutter/features/cart/presentation/pages/cart_page.dart';
 import 'package:warmindo_purnama_flutter/features/checkout/presentation/pages/checkout_page.dart';
+import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_detail_page.dart';
+import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
 import 'package:warmindo_purnama_flutter/features/payment/presentation/pages/payment_page.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
 
@@ -19,6 +21,8 @@ class AppRouter {
   static const String cart = '/cart';
   static const String checkout = '/checkout';
   static const String payment = '/payment';
+  static const String orderList = '/orders';
+  static const String orderDetail = '/order-detail';
 
   /// Route generator function
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -36,6 +40,11 @@ class AppRouter {
       case payment:
         final orderId = settings.arguments as int;
         return _buildRoute(PaymentPage(orderId: orderId), settings);
+      case orderList:
+        return _buildRoute(const OrderListPage(), settings);
+      case orderDetail:
+        final orderId = settings.arguments as int;
+        return _buildRoute(OrderDetailPage(orderId: orderId), settings);
       case dashboard:
         return _buildRoute(const _DashboardPage(), settings);
       default:
