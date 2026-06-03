@@ -18,41 +18,41 @@ import '../../features/product/presentation/providers/product_provider.dart';
 import '../services/dio_client.dart';
 import '../services/secure_storage.dart';
 
+/// Core services (singleton instances)
+final SecureStorage _secureStorage = SecureStorage();
+final DioClient _dioClient = DioClient(_secureStorage);
+
+/// Remote datasources
+final AuthRemoteDataSource _authRemoteDataSource = AuthRemoteDataSource(_dioClient);
+final ProductRemoteDataSource _productRemoteDataSource = ProductRemoteDataSource(_dioClient);
+final CartRemoteDataSource _cartRemoteDataSource = CartRemoteDataSource(_dioClient);
+final CheckoutRemoteDataSource _checkoutRemoteDataSource = CheckoutRemoteDataSource(_dioClient);
+final OrderRemoteDataSource _orderRemoteDataSource = OrderRemoteDataSource(_dioClient);
+
+/// Repositories
+final AuthRepositoryImpl _authRepository = AuthRepositoryImpl(_authRemoteDataSource, _secureStorage);
+final ProductRepositoryImpl _productRepository = ProductRepositoryImpl(_productRemoteDataSource);
+final CartRepositoryImpl _cartRepository = CartRepositoryImpl(_cartRemoteDataSource);
+final CheckoutRepositoryImpl _checkoutRepository = CheckoutRepositoryImpl(dataSource: _checkoutRemoteDataSource);
+final OrderRepositoryImpl _orderRepository = OrderRepositoryImpl(dataSource: _orderRemoteDataSource);
+
 class DependencyInjection {
-  static List<ChangeNotifierProvider> get providers {
-    // Core services
-    final secureStorage = SecureStorage();
-    final dioClient = DioClient(secureStorage);
-
-    // Auth
-    final authRemoteDataSource = AuthRemoteDataSource(dioClient);
-    final authRepository = AuthRepositoryImpl(authRemoteDataSource, secureStorage);
-
-    // Product
-    final productRemoteDataSource = ProductRemoteDataSource(dioClient);
-    final productRepository = ProductRepositoryImpl(productRemoteDataSource);
-
-    // Cart
-    final cartRemoteDataSource = CartRemoteDataSource(dioClient);
-    final cartRepository = CartRepositoryImpl(cartRemoteDataSource);
-
-    // Checkout
-    final checkoutRemoteDataSource = CheckoutRemoteDataSource(dioClient);
-    final checkoutRepository = CheckoutRepositoryImpl(dataSource: checkoutRemoteDataSource);
-
-    // Order
-    final orderRemoteDataSource = OrderRemoteDataSource(dioClient);
-    final orderRepository = OrderRepositoryImpl(dataSource: orderRemoteDataSource);
-
-    // Return providers — urutan sama dengan main.dart sekarang
-    return [
-      ChangeNotifierProvider(
-        create: (_) => AuthProvider(authRepository)..checkAuthStatus(),
-      ),
-      ChangeNotifierProvider(create: (_) => ProductProvider(productRepository)),
-      ChangeNotifierProvider(create: (_) => CartProvider(cartRepository)),
-      ChangeNotifierProvider(create: (_) => CheckoutProvider(repository: checkoutRepository)),
-      ChangeNotifierProvider(create: (_) => OrderProvider(repository: orderRepository)),
-    ];
-  }
+  /// Providers with proper type parameters - type erasure fixed
+  static List<ChangeNotifierProvider> get providers => [
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(_authRepository)..checkAuthStatus(),
+        ),
+        ChangeNotifierProvider<ProductProvider>(
+          create: (_) => ProductProvider(_productRepository),
+        ),
+        ChangeNotifierProvider<CartProvider>(
+          create: (_) => CartProvider(_cartRepository),
+        ),
+        ChangeNotifierProvider<CheckoutProvider>(
+          create: (_) => CheckoutProvider(repository: _checkoutRepository),
+        ),
+        ChangeNotifierProvider<OrderProvider>(
+          create: (_) => OrderProvider(repository: _orderRepository),
+        ),
+      ];
 }
