@@ -87,8 +87,10 @@ class RoleGuard extends StatelessWidget {
               // Default redirect based on role
               if (auth.role == 'customer') {
                 Navigator.pushReplacementNamed(context, AppRouter.home);
+              } else if (auth.role == 'kasir' ) {
+                Navigator.pushReplacementNamed(context, AppRouter.orderList);
               } else {
-                Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+                Navigator.pushReplacementNamed(context, AppRouter.orderList);
               }
             });
             return const Scaffold(

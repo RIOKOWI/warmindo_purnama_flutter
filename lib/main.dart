@@ -66,10 +66,12 @@ class MyApp extends StatelessWidget {
           if (authProvider.isAuthenticated) {
             // Customer role -> show product menu (HomePage)
             if (authProvider.role == 'customer') {
-              return const _CustomerHomePage();
+              Navigator.pushReplacementNamed(context, AppRouter.home);
             }
             // Admin/Kasir -> show dashboard
-            return const _DashboardPage();
+            else { 
+              Navigator.pushReplacementNamed(context, AppRouter.orderList);
+            }
           }
 
           // Navigate ke login jika unauthenticated
