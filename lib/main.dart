@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
 
 import 'core/injection/dependency_injection.dart';
 import 'core/routes/app_router.dart';
@@ -66,11 +67,11 @@ class MyApp extends StatelessWidget {
           if (authProvider.isAuthenticated) {
             // Customer role -> show product menu (HomePage)
             if (authProvider.role == 'customer') {
-              Navigator.pushReplacementNamed(context, AppRouter.home);
+              return HomePage();
             }
             // Admin/Kasir -> show dashboard
             else { 
-              Navigator.pushReplacementNamed(context, AppRouter.orderList);
+              return OrderListPage();
             }
           }
 
