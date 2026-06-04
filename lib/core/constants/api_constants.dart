@@ -35,4 +35,8 @@ class ApiConstants {
   // Checkout endpoints
   static const String orderTypes = 'order-types';
   static const String tablesAvailable = 'tables/available';
+
+  // Table endpoints
+  static const String tables = 'tables';
+  static String tableStatus(int tableId) => 'tables/$tableId/status';
 }
