@@ -1,3 +1,4 @@
+.gitignore
 # Miscellaneous
 *.class
 *.log
@@ -45,3 +46,10 @@ app.*.map.json
 /android/app/release
 
 .vscode/templates
+
+docs/
+# lib/firebase_options.dart
+.claude/
+CLAUDE.md
+.env
+clean.md

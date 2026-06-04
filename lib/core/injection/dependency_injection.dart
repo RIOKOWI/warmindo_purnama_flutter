@@ -1,0 +1,58 @@
+import 'package:provider/provider.dart';
+
+import '../../features/auth/data/datasources/auth_remote_datasource.dart';
+import '../../features/auth/domain/repositories/auth_repository_impl.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/cart/data/datasources/cart_remote_datasource.dart';
+import '../../features/cart/domain/repositories/cart_repository_impl.dart';
+import '../../features/cart/presentation/providers/cart_provider.dart';
+import '../../features/checkout/data/datasources/checkout_remote_datasource.dart';
+import '../../features/checkout/domain/repositories/checkout_repository_impl.dart';
+import '../../features/checkout/presentation/providers/checkout_provider.dart';
+import '../../features/order/data/datasources/order_remote_datasource.dart';
+import '../../features/order/domain/repositories/order_repository_impl.dart';
+import '../../features/order/presentation/providers/order_provider.dart';
+import '../../features/product/data/datasources/product_remote_datasource.dart';
+import '../../features/product/domain/repositories/product_repository_impl.dart';
+import '../../features/product/presentation/providers/product_provider.dart';
+import '../services/dio_client.dart';
+import '../services/secure_storage.dart';
+
+/// Core services (singleton instances)
+final SecureStorage _secureStorage = SecureStorage();
+final DioClient _dioClient = DioClient(_secureStorage);
+
+/// Remote datasources
+final AuthRemoteDataSource _authRemoteDataSource = AuthRemoteDataSource(_dioClient);
+final ProductRemoteDataSource _productRemoteDataSource = ProductRemoteDataSource(_dioClient);
+final CartRemoteDataSource _cartRemoteDataSource = CartRemoteDataSource(_dioClient);
+final CheckoutRemoteDataSource _checkoutRemoteDataSource = CheckoutRemoteDataSource(_dioClient);
+final OrderRemoteDataSource _orderRemoteDataSource = OrderRemoteDataSource(_dioClient);
+
+/// Repositories
+final AuthRepositoryImpl _authRepository = AuthRepositoryImpl(_authRemoteDataSource, _secureStorage);
+final ProductRepositoryImpl _productRepository = ProductRepositoryImpl(_productRemoteDataSource);
+final CartRepositoryImpl _cartRepository = CartRepositoryImpl(_cartRemoteDataSource);
+final CheckoutRepositoryImpl _checkoutRepository = CheckoutRepositoryImpl(dataSource: _checkoutRemoteDataSource);
+final OrderRepositoryImpl _orderRepository = OrderRepositoryImpl(dataSource: _orderRemoteDataSource);
+
+class DependencyInjection {
+  /// Providers with proper type parameters - type erasure fixed
+  static List<ChangeNotifierProvider> get providers => [
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(_authRepository)..checkAuthStatus(),
+        ),
+        ChangeNotifierProvider<ProductProvider>(
+          create: (_) => ProductProvider(_productRepository),
+        ),
+        ChangeNotifierProvider<CartProvider>(
+          create: (_) => CartProvider(_cartRepository),
+        ),
+        ChangeNotifierProvider<CheckoutProvider>(
+          create: (_) => CheckoutProvider(repository: _checkoutRepository),
+        ),
+        ChangeNotifierProvider<OrderProvider>(
+          create: (_) => OrderProvider(repository: _orderRepository),
+        ),
+      ];
+}

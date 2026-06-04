@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "983936421736",
+    "project_id": "warmindo-8d503",
+    "storage_bucket": "warmindo-8d503.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983936421736:android:eb90a63de98324a6b290dd",
+        "android_client_info": {
+          "package_name": "com.example.warmindo_purnama_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwvDY67WprAP2qiR1AdjweE1UDBBRS9Fg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
