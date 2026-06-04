@@ -14,6 +14,7 @@ import 'package:warmindo_purnama_flutter/features/payment/domain/repositories/pa
 import 'package:warmindo_purnama_flutter/features/payment/presentation/pages/payment_page.dart';
 import 'package:warmindo_purnama_flutter/features/payment/presentation/providers/payment_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/table_status_page.dart';
 
 /// Arguments for payment route
 /// Can hold just orderId (new payment) or orderId + existingPayment (resuming payment)
@@ -42,6 +43,7 @@ class AppRouter {
   static const String payment = '/payment';
   static const String orderList = '/orders';
   static const String orderDetail = '/order-detail';
+  static const String tableStatus = '/kasir/tables';
 
   /// Route generator function
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -81,6 +83,8 @@ class AppRouter {
       case orderDetail:
         final orderId = settings.arguments as int;
         return _buildRoute(OrderDetailPage(orderId: orderId), settings);
+      case tableStatus:
+        return _buildRoute(const TableStatusPage(), settings);
       case dashboard:
         return _buildRoute(const _DashboardPage(), settings);
       default:
