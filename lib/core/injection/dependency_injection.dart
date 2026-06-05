@@ -15,6 +15,9 @@ import '../../features/order/presentation/providers/order_provider.dart';
 import '../../features/kasir/dashboard/data/datasources/table_remote_datasource.dart';
 import '../../features/kasir/dashboard/domain/repositories/table_repository_impl.dart';
 import '../../features/kasir/dashboard/presentation/providers/table_provider.dart';
+import '../../features/kasir/dashboard/data/datasources/payment_list_datasource.dart';
+import '../../features/kasir/dashboard/domain/repositories/payment_list_repository_impl.dart';
+import '../../features/kasir/dashboard/presentation/providers/payment_list_provider.dart';
 import '../../features/product/data/datasources/product_remote_datasource.dart';
 import '../../features/product/domain/repositories/product_repository_impl.dart';
 import '../../features/product/presentation/providers/product_provider.dart';
@@ -32,6 +35,7 @@ final CartRemoteDataSource _cartRemoteDataSource = CartRemoteDataSource(_dioClie
 final CheckoutRemoteDataSource _checkoutRemoteDataSource = CheckoutRemoteDataSource(_dioClient);
 final OrderRemoteDataSource _orderRemoteDataSource = OrderRemoteDataSource(_dioClient);
 final TableRemoteDataSource _tableRemoteDataSource = TableRemoteDataSource(_dioClient);
+final PaymentListDataSource _paymentListDataSource = PaymentListDataSource(_dioClient);
 
 /// Repositories
 final AuthRepositoryImpl _authRepository = AuthRepositoryImpl(_authRemoteDataSource, _secureStorage);
@@ -40,6 +44,7 @@ final CartRepositoryImpl _cartRepository = CartRepositoryImpl(_cartRemoteDataSou
 final CheckoutRepositoryImpl _checkoutRepository = CheckoutRepositoryImpl(dataSource: _checkoutRemoteDataSource);
 final OrderRepositoryImpl _orderRepository = OrderRepositoryImpl(dataSource: _orderRemoteDataSource);
 final TableRepositoryImpl _tableRepository = TableRepositoryImpl(dataSource: _tableRemoteDataSource);
+final PaymentListRepositoryImpl _paymentListRepository = PaymentListRepositoryImpl(dataSource: _paymentListDataSource);
 
 class DependencyInjection {
   /// Providers with proper type parameters - type erasure fixed
@@ -61,6 +66,9 @@ class DependencyInjection {
         ),
         ChangeNotifierProvider<TableProvider>(
           create: (_) => TableProvider(repository: _tableRepository),
+        ),
+        ChangeNotifierProvider<PaymentListProvider>(
+          create: (_) => PaymentListProvider(repository: _paymentListRepository),
         ),
       ];
 }
