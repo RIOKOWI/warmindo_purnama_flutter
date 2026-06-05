@@ -30,6 +30,7 @@ class ApiConstants {
   static String orderPayment(int orderId) => 'orders/$orderId/payment';
 
   // Payment endpoints
+  static const String payments = 'payments';
   static String paymentDetails(int paymentId) => 'payments/$paymentId';
 
   // Checkout endpoints
