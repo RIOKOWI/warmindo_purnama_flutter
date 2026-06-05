@@ -6,6 +6,7 @@ import 'package:warmindo_purnama_flutter/features/auth/domain/repositories/auth_
 import 'package:warmindo_purnama_flutter/features/cart/domain/repositories/cart_repository.dart';
 import 'package:warmindo_purnama_flutter/features/cart/data/datasources/cart_remote_datasource.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/domain/repositories/table_repository.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/domain/repositories/payment_list_repository.dart';
 
 @GenerateMocks([
   DioClient,
@@ -15,5 +16,6 @@ import 'package:warmindo_purnama_flutter/features/kasir/dashboard/domain/reposit
   CartRepository,
   CartRemoteDataSource,
   TableRepository,
+  PaymentListRepository,
 ])
 import 'mocks.mocks.dart';
