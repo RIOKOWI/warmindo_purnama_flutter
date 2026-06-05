@@ -4,6 +4,7 @@ import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/features/auth/domain/auth_status.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/payment_list_page.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/table_status_page.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
@@ -59,7 +60,7 @@ class App extends StatelessWidget {
               return TableStatusPage();
             }
             else { 
-              return OrderListPage();
+              return PaymentListPage();
             }
           }
 
