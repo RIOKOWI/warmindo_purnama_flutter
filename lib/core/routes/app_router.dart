@@ -16,6 +16,9 @@ import 'package:warmindo_purnama_flutter/features/payment/presentation/providers
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/table_status_page.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/payment_list_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/category_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
 
 /// Arguments for payment route
 /// Can hold just orderId (new payment) or orderId + existingPayment (resuming payment)
@@ -46,6 +49,9 @@ class AppRouter {
   static const String orderDetail = '/order-detail';
   static const String tableStatus = '/kasir/tables';
   static const String paymentList = '/kasir/payments';
+  static const String productManage = '/admin/products';
+  static const String categoryManage = '/admin/categories';
+  static const String userManage = '/admin/users';
 
   /// Route generator function
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -89,6 +95,12 @@ class AppRouter {
         return _buildRoute(const TableStatusPage(), settings);
       case paymentList:
         return _buildRoute(const PaymentListPage(), settings);
+      case productManage:
+        return _buildRoute(const ProductManagePage(), settings);
+      case categoryManage:
+        return _buildRoute(const CategoryManagePage(), settings);
+      case userManage:
+        return _buildRoute(const UserManagePage(), settings);
       case dashboard:
         return _buildRoute(const _DashboardPage(), settings);
       default:
