@@ -19,6 +19,19 @@ class ApiConstants {
   static const String products = 'products';
   static const String categories = 'categories';
 
+  // Admin Product endpoints
+  static const String adminProducts = 'admin/products';
+  static String adminProductDetail(int id) => 'admin/products/$id';
+
+  // Admin Category endpoints
+  static const String adminCategories = 'admin/categories';
+  static String adminCategoryDetail(int id) => 'admin/categories/$id';
+
+  // Admin User endpoints
+  static const String adminUsers = 'admin/users';
+  static String adminUserDetail(int id) => 'admin/users/$id';
+  static String adminUserRestore(int id) => 'admin/users/$id/restore';
+
   // Cart endpoints
   static const String cart = 'cart';
   static String cartItem(int cartItemId) => 'cart/$cartItemId';
