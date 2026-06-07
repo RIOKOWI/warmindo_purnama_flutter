@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/routes/app_router.dart';
-import '../providers/auth_provider.dart';
+import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_text_field.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
+import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 
-/// Login page with email and password form.
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -39,12 +43,10 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(auth.errorMessage ?? 'Login gagal'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
-    // Redirect berdasarkan role ditangani di main.dart
-    // via Consumer<AuthProvider> yang akan rebuild saat isAuthenticated berubah
   }
 
   @override
@@ -52,6 +54,7 @@ class _LoginPageState extends State<LoginPage> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -62,41 +65,41 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const SizedBox(height: 48),
                 // Logo
-                const Icon(
-                  Icons.restaurant_menu,
-                  size: 80,
-                  color: Colors.deepOrange,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Warmindo Purnama',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepOrange,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Silakan masuk untuk melanjutkan',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
+                NeoCard(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.restaurant_menu,
+                        size: 60,
+                        color: AppColors.accent,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'WARMINDO',
+                        style: AppTextStyles.headline.copyWith(
+                          letterSpacing: 3,
+                        ),
+                      ),
+                      Text(
+                        'PURNAMA',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.accent,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 48),
 
                 // Email field
-                TextFormField(
+                NeoTextField(
                   controller: _emailController,
+                  label: 'Email',
+                  hint: 'nama@email.com',
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
-                  ),
+                  prefixIcon: const Icon(Icons.email_outlined),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return 'Email tidak boleh kosong';
@@ -110,25 +113,20 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 16),
 
                 // Password field
-                TextFormField(
+                NeoTextField(
                   controller: _passwordController,
+                  label: 'Password',
+                  hint: '••••••••',
                   obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                  prefixIcon: const Icon(Icons.lock_outlined),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.text,
                     ),
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
+                    },
                   ),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
@@ -137,40 +135,31 @@ class _LoginPageState extends State<LoginPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
                 // Login button
-                SizedBox(
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: auth.isLoading ? null : _onLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepOrange,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: auth.isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Login',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
+                NeoButton(
+                  label: 'MASUK',
+                  isLoading: auth.isLoading,
+                  onPressed: _onLogin,
+                  width: double.infinity,
                 ),
                 const SizedBox(height: 16),
 
                 // Register link
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRouter.register);
-                  },
-                  child: const Text('Belum punya akun? Daftar'),
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRouter.register);
+                    },
+                    child: Text(
+                      'Belum punya akun? Daftar',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.accent,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
