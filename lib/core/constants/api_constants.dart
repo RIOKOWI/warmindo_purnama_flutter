@@ -15,6 +15,11 @@ class ApiConstants {
   static const String logout = 'auth/logout';
   static const String me = 'auth/me';
 
+  // Profile endpoints
+  static const String profile = 'profile';
+  static const String fcmToken = 'profile/fcm-token';
+  static const String profilePassword = 'profile/password';
+
   // Product endpoints
   static const String products = 'products';
   static const String categories = 'categories';
