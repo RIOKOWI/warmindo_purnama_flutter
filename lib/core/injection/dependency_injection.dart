@@ -69,7 +69,7 @@ class DependencyInjection {
   /// Providers with proper type parameters - type erasure fixed
   static List<ChangeNotifierProvider> get providers => [
         ChangeNotifierProvider<AuthProvider>(
-          create: (_) => AuthProvider(_authRepository)..checkAuthStatus(),
+          create: (_) => AuthProvider(_authRepository, _dioClient)..checkAuthStatus(),
         ),
         ChangeNotifierProvider<ProductProvider>(
           create: (_) => ProductProvider(_productRepository),
