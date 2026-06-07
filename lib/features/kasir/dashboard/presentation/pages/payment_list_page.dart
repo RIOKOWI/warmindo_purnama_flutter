@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:warmindo_purnama_flutter/core/constants/payment_constants.dart';
-import '../../data/models/payment_list_model.dart';
-import '../providers/payment_list_provider.dart';
-import '../widgets/payment_list_tile.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/data/models/payment_list_model.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/providers/payment_list_provider.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/widgets/payment_list_tile.dart';
 
-/// Halaman list payment untuk kasir/admin
 class PaymentListPage extends StatefulWidget {
   const PaymentListPage({super.key});
 
@@ -21,12 +24,10 @@ class _PaymentListPageState extends State<PaymentListPage> {
     super.initState();
     _scrollController = ScrollController();
 
-    // Fetch payments on first load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PaymentListProvider>().fetchPayments(refresh: true);
     });
 
-    // Infinite scroll listener
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
@@ -46,11 +47,8 @@ class _PaymentListPageState extends State<PaymentListPage> {
     final provider = context.watch<PaymentListProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pembayaran'),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
-      ),
+      backgroundColor: AppColors.background,
+      appBar: const NeoAppBar(title: 'PEMBAYARAN'),
       body: Column(
         children: [
           if (provider.payments.isNotEmpty) _SummaryHeader(provider: provider),
@@ -65,83 +63,87 @@ class _PaymentListPageState extends State<PaymentListPage> {
   }
 
   Widget _buildBody(PaymentListProvider provider) {
-    // Loading state
     if (provider.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.deepOrange),
-      );
+      return Center(child: CircularProgressIndicator(color: AppColors.accent));
     }
 
-    // Error state
     if (provider.errorMessage != null && provider.payments.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-            const SizedBox(height: 16),
-            Text(
-              provider.errorMessage!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red.shade700),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.error, width: 3),
+              ),
+              child: const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             ),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
+            Text(provider.errorMessage!,
+                textAlign: TextAlign.center, style: AppTextStyles.body),
+            const SizedBox(height: 16),
+            NeoButtonSmall(
+              label: 'Coba Lagi',
+              icon: Icons.refresh,
               onPressed: () => provider.fetchPayments(refresh: true),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
-                foregroundColor: Colors.white,
-              ),
             ),
           ],
         ),
       );
     }
 
-    // Empty state
     if (provider.payments.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.payment, size: 64, color: Colors.grey.shade400),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.dark, width: 3),
+              ),
+              child: Icon(Icons.payment,
+                  size: 48, color: AppColors.text.withValues(alpha: 0.5)),
+            ),
             const SizedBox(height: 16),
             Text(
               provider.activeFilter != null
                   ? 'Tidak ada payment dengan filter tersebut'
                   : 'Belum ada data pembayaran',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: AppTextStyles.headline,
             ),
           ],
         ),
       );
     }
 
-    // Normal state with data
     return RefreshIndicator(
       onRefresh: () => provider.fetchPayments(refresh: true),
-      color: Colors.deepOrange,
+      color: AppColors.accent,
       child: ListView.builder(
         controller: _scrollController,
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
         itemCount: provider.payments.length + (provider.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
-          // Loading indicator at the end
           if (index == provider.payments.length) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(color: Colors.deepOrange),
-              ),
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
             );
           }
 
           final payment = provider.payments[index];
-          return PaymentListTile(
-            payment: payment,
-            onTap: () => _showPaymentDetail(context, payment),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: PaymentListTile(
+              payment: payment,
+              onTap: () => _showPaymentDetail(context, payment),
+            ),
           );
         },
       ),
@@ -152,12 +154,12 @@ class _PaymentListPageState extends State<PaymentListPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (_) => _PaymentDetailSheet(payment: payment),
     );
   }
 }
 
-/// Summary header widget showing totals
 class _SummaryHeader extends StatelessWidget {
   const _SummaryHeader({required this.provider});
 
@@ -172,19 +174,19 @@ class _SummaryHeader extends StatelessWidget {
           _StatCard(
             label: 'Lunas',
             value: '${provider.totalCompleted}',
-            color: Colors.green,
+            color: AppColors.success,
           ),
           const SizedBox(width: 8),
           _StatCard(
             label: 'Menunggu',
             value: '${provider.totalPending}',
-            color: Colors.orange,
+            color: AppColors.warning,
           ),
           const SizedBox(width: 8),
           _StatCard(
             label: 'Total',
             value: 'Rp ${_formatNumber(provider.grandTotal)}',
-            color: Colors.blue,
+            color: AppColors.accent,
             flex: 2,
           ),
         ],
@@ -200,7 +202,6 @@ class _SummaryHeader extends StatelessWidget {
   }
 }
 
-/// Stat card widget
 class _StatCard extends StatelessWidget {
   const _StatCard({
     required this.label,
@@ -222,28 +223,15 @@ class _StatCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color, width: 2),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: color,
-              ),
-            ),
+            Text(label, style: AppTextStyles.caption.copyWith(color: color)),
             const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: color,
-              ),
-            ),
+            Text(value, style: AppTextStyles.title.copyWith(color: color)),
           ],
         ),
       ),
@@ -251,12 +239,8 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-/// Filter bar widget
 class _FilterBar extends StatelessWidget {
-  const _FilterBar({
-    required this.activeFilter,
-    required this.onFilter,
-  });
+  const _FilterBar({required this.activeFilter, required this.onFilter});
 
   final String? activeFilter;
   final void Function(String?) onFilter;
@@ -265,39 +249,50 @@ class _FilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          FilterChip(
-            label: const Text('Semua'),
-            selected: activeFilter == null,
-            onSelected: (_) => onFilter(null),
-            selectedColor: Colors.deepOrange.shade100,
-            checkmarkColor: Colors.deepOrange,
-          ),
+          _FilterChip(label: 'Semua', isSelected: activeFilter == null, onTap: () => onFilter(null)),
           const SizedBox(width: 8),
-          FilterChip(
-            label: const Text('Lunas'),
-            selected: activeFilter == 'completed',
-            onSelected: (_) => onFilter('completed'),
-            selectedColor: Colors.green.shade100,
-            checkmarkColor: Colors.green,
-          ),
+          _FilterChip(label: 'Lunas', isSelected: activeFilter == 'completed', onTap: () => onFilter('completed')),
           const SizedBox(width: 8),
-          FilterChip(
-            label: const Text('Menunggu'),
-            selected: activeFilter == 'pending',
-            onSelected: (_) => onFilter('pending'),
-            selectedColor: Colors.orange.shade100,
-            checkmarkColor: Colors.orange,
-          ),
+          _FilterChip(label: 'Menunggu', isSelected: activeFilter == 'pending', onTap: () => onFilter('pending')),
         ],
       ),
     );
   }
 }
 
-/// Payment detail bottom sheet
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterChip({required this.label, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.accent : AppColors.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.dark, width: 2),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.body.copyWith(
+            color: isSelected ? Colors.white : AppColors.text,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PaymentDetailSheet extends StatelessWidget {
   const _PaymentDetailSheet({required this.payment});
 
@@ -307,94 +302,56 @@ class _PaymentDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final methodLabel = paymentMethodFromString(payment.paymentMethod).label;
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.4,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (_, controller) => ListView(
-        controller: controller,
-        padding: const EdgeInsets.all(20),
-        children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        border: Border(top: BorderSide(color: AppColors.dark, width: 3)),
+      ),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, controller) => ListView(
+          controller: controller,
+          padding: const EdgeInsets.all(20),
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.dark.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-
-          // Invoice number
-          Text(
-            payment.order.invoiceNumber,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-
-          // Status badge
-          _PaymentStatusBadge(status: payment.status),
-          const Divider(height: 32),
-
-          // Method
-          _DetailRow(label: 'Metode', value: methodLabel),
-          _DetailRow(
-            label: 'Subtotal',
-            value: 'Rp ${_formatNumber(payment.amount)}',
-          ),
-          _DetailRow(
-            label: 'Biaya layanan',
-            value: 'Rp ${_formatNumber(payment.fee)}',
-          ),
-          _DetailRow(
-            label: 'Total Bayar',
-            value: 'Rp ${_formatNumber(payment.totalPayment)}',
-            isBold: true,
-          ),
-          const Divider(height: 24),
-
-          // Order status
-          _DetailRow(label: 'Status Order', value: payment.order.status),
-          if (payment.completedAt != null)
-            _DetailRow(
-              label: 'Waktu Bayar',
-              value: _formatDateTime(payment.completedAt!),
-            ),
-          _DetailRow(
-            label: 'Kadaluarsa',
-            value: _formatDateTime(payment.expiredAt),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(payment.order.invoiceNumber, style: AppTextStyles.headline),
+            const SizedBox(height: 8),
+            _PaymentStatusBadge(status: payment.status),
+            Container(height: 2, color: AppColors.dark, margin: const EdgeInsets.symmetric(vertical: 16)),
+            _DetailRow(label: 'Metode', value: methodLabel),
+            _DetailRow(label: 'Subtotal', value: 'Rp ${_formatNumber(payment.amount)}'),
+            _DetailRow(label: 'Biaya layanan', value: 'Rp ${_formatNumber(payment.fee)}'),
+            _DetailRow(label: 'Total Bayar', value: 'Rp ${_formatNumber(payment.totalPayment)}', isBold: true),
+            Container(height: 2, color: AppColors.dark, margin: const EdgeInsets.symmetric(vertical: 12)),
+            _DetailRow(label: 'Status Order', value: payment.order.status),
+            if (payment.completedAt != null) _DetailRow(label: 'Waktu Bayar', value: _formatDateTime(payment.completedAt!)),
+            _DetailRow(label: 'Kadaluarsa', value: _formatDateTime(payment.expiredAt)),
+          ],
+        ),
       ),
     );
   }
 
-  String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (match) => '${match[1]}.',
-    );
-  }
-
-  String _formatDateTime(DateTime dt) {
-    return '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatNumber(int number) => number.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.');
+  String _formatDateTime(DateTime dt) => '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }
 
-/// Detail row widget
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.label,
-    required this.value,
-    this.isBold = false,
-  });
+  const _DetailRow({required this.label, required this.value, this.isBold = false});
 
   final String label;
   final String value;
@@ -406,24 +363,15 @@ class _DetailRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
+          Text(label, style: AppTextStyles.body.copyWith(color: AppColors.textLight)),
           const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
+          Text(value, style: isBold ? AppTextStyles.title : AppTextStyles.body),
         ],
       ),
     );
   }
 }
 
-/// Status badge widget (reused in detail sheet)
 class _PaymentStatusBadge extends StatelessWidget {
   const _PaymentStatusBadge({required this.status});
 
@@ -432,25 +380,19 @@ class _PaymentStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (status) {
-      'completed' => ('Lunas', Colors.green),
-      'pending' => ('Menunggu', Colors.orange),
-      _ => (status, Colors.grey),
+      'completed' => ('Lunas', AppColors.success),
+      'pending' => ('Menunggu', AppColors.warning),
+      _ => (status, AppColors.textLight),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        border: Border.all(color: color),
-        borderRadius: BorderRadius.circular(8),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color, width: 2),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
+      child: Text(label, style: AppTextStyles.caption.copyWith(color: color, fontWeight: FontWeight.w700)),
     );
   }
 }
