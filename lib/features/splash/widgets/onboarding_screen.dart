@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:warmindo_purnama_flutter/core/services/secure_storage.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/features/splash/data/models/onboarding_model.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -38,10 +41,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _skip() {
-    _completeOnboarding();
-  }
-
   Future<void> _completeOnboarding() async {
     await _secureStorage.setHasSeenOnboarding();
     widget.onComplete();
@@ -49,47 +48,53 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildSkipButton(),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() => _currentPage = index);
-                },
-                itemCount: _screens.length,
-                itemBuilder: (context, index) {
-                  return _buildPage(_screens[index]);
-                },
+    return GestureDetector(
+      onTap: _nextPage,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildSkipHint(),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() => _currentPage = index);
+                  },
+                  itemCount: _screens.length,
+                  itemBuilder: (context, index) {
+                    return _buildPage(_screens[index]);
+                  },
+                ),
               ),
-            ),
-            _buildBottomControls(),
-          ],
+              _buildBottomControls(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSkipButton() {
+  Widget _buildSkipHint() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          TextButton(
-            onPressed: _skip,
-            child: Text(
-              _currentPage == _screens.length - 1 ? '' : 'Lewati',
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
+          if (_currentPage < _screens.length - 1)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.dark, width: 2),
+              ),
+              child: Text(
+                'Tap to continue',
+                style: AppTextStyles.caption,
               ),
             ),
-          ),
         ],
       ),
     );
@@ -105,31 +110,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: 160,
             height: 160,
             decoration: BoxDecoration(
-              color: Colors.deepOrange.withValues(alpha: 0.1),
+              color: AppColors.card,
               shape: BoxShape.circle,
+              border: Border.all(color: AppColors.dark, width: 4),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppColors.dark,
+                  offset: Offset(8, 8),
+                  blurRadius: 0,
+                ),
+              ],
             ),
             child: Icon(
               data.icon,
               size: 80,
-              color: Colors.deepOrange,
+              color: AppColors.accent,
             ),
           ),
           const SizedBox(height: 48),
           Text(
             data.title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: AppTextStyles.headline,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
             data.description,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textLight,
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -146,7 +154,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           _buildPageIndicator(),
           const SizedBox(height: 24),
-          _buildNextButton(),
+          if (_currentPage == _screens.length - 1)
+            NeoButton(
+              label: 'MULAI',
+              width: double.infinity,
+              onPressed: _completeOnboarding,
+            )
+          else
+            const SizedBox(height: 56),
         ],
       ),
     );
@@ -159,38 +174,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         _screens.length,
         (index) => AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: _currentPage == index ? 24 : 8,
-          height: 8,
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          width: _currentPage == index ? 32 : 12,
+          height: 12,
           decoration: BoxDecoration(
-            color: _currentPage == index ? Colors.deepOrange : Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNextButton() {
-    final isLastPage = _currentPage == _screens.length - 1;
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: _nextPage,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepOrange,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 2,
-        ),
-        child: Text(
-          isLastPage ? 'Mulai' : 'Lanjut',
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            color: _currentPage == index ? AppColors.accent : AppColors.card,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: AppColors.dark, width: 2),
           ),
         ),
       ),
