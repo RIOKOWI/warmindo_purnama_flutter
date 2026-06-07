@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
-import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/category_manage_page.dart';
-import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/providers/product_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/product_model.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
-import '../providers/product_admin_provider.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/providers/product_admin_provider.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/widgets/product_form_sheet.dart';
 
-import '../widgets/product_form_sheet.dart';
-
-/// Halaman management produk untuk admin
 class ProductManagePage extends StatefulWidget {
   const ProductManagePage({super.key});
 
@@ -32,10 +33,7 @@ class _ProductManagePageState extends State<ProductManagePage> {
   }
 
   Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    setState(() { _isLoading = true; _error = null; });
 
     try {
       final productProvider = context.read<ProductProvider>();
@@ -49,12 +47,7 @@ class _ProductManagePageState extends State<ProductManagePage> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() { _error = e.toString(); _isLoading = false; });
     }
   }
 
@@ -62,23 +55,17 @@ class _ProductManagePageState extends State<ProductManagePage> {
     final result = await showModalBottomSheet<ProductModel>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => ProductFormSheet(
-        product: product,
-        categories: _categories,
-      ),
+      backgroundColor: Colors.transparent,
+      builder: (_) => ProductFormSheet(product: product, categories: _categories),
     );
 
-    if (result == null) return;
-
-    if (mounted) {
+    if (result != null && mounted) {
       setState(() {
         if (product == null) {
           _products.add(result);
         } else {
           final index = _products.indexWhere((p) => p.id == result.id);
-          if (index != -1) {
-            _products[index] = result;
-          }
+          if (index != -1) _products[index] = result;
         }
       });
     }
@@ -87,31 +74,56 @@ class _ProductManagePageState extends State<ProductManagePage> {
   Future<void> _confirmDelete(BuildContext context, ProductModel product) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus produk?'),
-        content: Text(
-          '${product.name} akan dihapus secara permanen.',
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.dark, width: 3),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.error, width: 3),
+                ),
+                child: const Icon(Icons.warning, color: AppColors.error, size: 40),
+              ),
+              const SizedBox(height: 16),
+              Text('Hapus produk?', style: AppTextStyles.headline),
+              const SizedBox(height: 8),
+              Text('${product.name} akan dihapus secara permanen.',
+                  style: AppTextStyles.body, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Batal',
+                      isOutlined: true,
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Hapus',
+                      onPressed: () => Navigator.pop(context, true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Hapus'),
-          ),
-        ],
+        ),
       ),
     );
 
-    if (confirmed == true) {
-      await _doDelete(context, product);
-    }
+    if (confirmed == true) await _doDelete(context, product);
   }
 
   Future<void> _doDelete(BuildContext context, ProductModel product) async {
@@ -120,138 +132,145 @@ class _ProductManagePageState extends State<ProductManagePage> {
     final ok = await provider.deleteProduct(product.id);
 
     if (ok && mounted) {
-      setState(() {
-        _products.removeWhere((p) => p.id == product.id);
-      });
+      setState(() => _products.removeWhere((p) => p.id == product.id));
       scaffoldMessenger.showSnackBar(
-        const SnackBar(
-          content: Text('Produk berhasil dihapus'),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text('Produk berhasil dihapus'), backgroundColor: AppColors.success),
       );
     } else if (mounted) {
-      final error = provider.errorMessage;
       scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text(error ?? 'Gagal menghapus produk'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(provider.errorMessage ?? 'Gagal menghapus produk'), backgroundColor: AppColors.error),
       );
     }
   }
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (match) => '${match[1]}.',
-        );
-  }
+  String _formatPrice(int price) => price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.');
 
   @override
   Widget build(BuildContext context) {
     final auth = context.read<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kelola Produk'),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
+      backgroundColor: AppColors.background,
+      appBar: NeoAppBar(
+        title: 'KELOLA PRODUK',
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadData,
+          GestureDetector(
+            onTap: _loadData,
+            child: _ActionButton(icon: Icons.refresh),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => auth.logout(),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, AppRouter.categoryManage),
+            child: _ActionButton(icon: Icons.category),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => Navigator.pushNamed(context, AppRouter.userManage),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, AppRouter.userManage),
+            child: _ActionButton(icon: Icons.people),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => Navigator.pushNamed(context, AppRouter.categoryManage),
+          GestureDetector(
+            onTap: () => auth.logout(),
+            child: _ActionButton(icon: Icons.logout),
           ),
+          const SizedBox(width: 16),
         ],
       ),
       body: _buildBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openForm(context, null),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          boxShadow: const [BoxShadow(color: AppColors.dark, offset: Offset(5, 5), blurRadius: 0)],
+        ),
+        child: FloatingActionButton(
+          onPressed: () => _openForm(context, null),
+          backgroundColor: AppColors.accent,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.deepOrange),
-      );
-    }
+    if (_isLoading) return Center(child: CircularProgressIndicator(color: AppColors.accent));
 
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-            const SizedBox(height: 16),
-            Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red.shade700),
+    if (_error != null) return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.error.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.error, width: 3),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _loadData,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+            child: const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+          ),
+          const SizedBox(height: 16),
+          Text(_error!, textAlign: TextAlign.center, style: AppTextStyles.body),
+          const SizedBox(height: 16),
+          NeoButtonSmall(label: 'Coba Lagi', icon: Icons.refresh, onPressed: _loadData),
+        ],
+      ),
+    );
 
-    if (_products.isEmpty) {
-      return const Center(
-        child: Text('Belum ada produk'),
-      );
-    }
+    if (_products.isEmpty) return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.dark, width: 3),
+            ),
+            child: Icon(Icons.fastfood, size: 48, color: AppColors.text.withValues(alpha: 0.5)),
+          ),
+          const SizedBox(height: 16),
+          Text('Belum ada produk', style: AppTextStyles.headline),
+        ],
+      ),
+    );
 
     return RefreshIndicator(
       onRefresh: _loadData,
-      color: Colors.deepOrange,
+      color: AppColors.accent,
       child: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 80),
+        padding: const EdgeInsets.all(16),
         itemCount: _products.length,
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return _ProductAdminTile(
-            product: product,
-            onEdit: () => _openForm(context, product),
-            onDelete: () => _confirmDelete(context, product),
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _ProductAdminTile(
+            product: _products[index],
+            onEdit: () => _openForm(context, _products[index]),
+            onDelete: () => _confirmDelete(context, _products[index]),
             formatPrice: _formatPrice,
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 }
 
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  const _ActionButton({required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.dark, width: 2),
+      ),
+      child: Icon(icon, color: AppColors.text, size: 20),
+    );
+  }
+}
+
 class _ProductAdminTile extends StatelessWidget {
-  const _ProductAdminTile({
-    required this.product,
-    required this.onEdit,
-    required this.onDelete,
-    required this.formatPrice,
-  });
+  const _ProductAdminTile({required this.product, required this.onEdit, required this.onDelete, required this.formatPrice});
 
   final ProductModel product;
   final VoidCallback onEdit;
@@ -260,50 +279,86 @@ class _ProductAdminTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: product.imageUrl.isNotEmpty
-            ? Image.network(
-                product.imageUrl,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildPlaceholder(),
-              )
-            : _buildPlaceholder(),
-      ),
-      title: Text(
-        product.name,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Text(
-        '${product.category.name} · Rp ${formatPrice(product.price)} · Stok: ${product.stock}',
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    return NeoCard(
+      padding: const EdgeInsets.all(12),
+      child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            color: Colors.blue,
-            onPressed: onEdit,
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.dark, width: 2),
+            ),
+            child: product.imageUrl.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(product.imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: AppColors.accent)),
+                  )
+                : const Icon(Icons.fastfood, color: AppColors.accent),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            color: Colors.red,
-            onPressed: onDelete,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(product.name, style: AppTextStyles.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 4),
+                Text('${product.category.name} · Rp ${formatPrice(product.price)}',
+                    style: AppTextStyles.caption),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: product.isAvailable
+                        ? AppColors.success.withValues(alpha: 0.1)
+                        : AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: product.isAvailable ? AppColors.success : AppColors.error,
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    product.isAvailable ? 'Stok: ${product.stock}' : 'Habis',
+                    style: AppTextStyles.caption.copyWith(
+                      color: product.isAvailable ? AppColors.success : AppColors.error,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: onEdit,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.info.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.info, width: 2),
+              ),
+              child: const Icon(Icons.edit, color: AppColors.info, size: 20),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: onDelete,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.error, width: 2),
+              ),
+              child: const Icon(Icons.delete, color: AppColors.error, size: 20),
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      width: 50,
-      height: 50,
-      color: Colors.grey.shade200,
-      child: Icon(Icons.fastfood, color: Colors.grey.shade400),
     );
   }
 }
