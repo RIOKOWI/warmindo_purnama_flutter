@@ -4,15 +4,20 @@ import 'package:logger/logger.dart';
 import '../../../auth/domain/auth_status.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/data/models/user_model.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/dio_client.dart';
+import '../../../../core/services/notification_service.dart';
 
 /// Authentication provider using ChangeNotifier pattern.
 ///
 /// Manages login, register, logout, and auto-login functionality.
+/// FCM token registration is handled after a successful login session.
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _authRepository;
+  final DioClient _dioClient;
   final Logger _log = Logger();
 
-  AuthProvider(this._authRepository);
+  AuthProvider(this._authRepository, this._dioClient);
 
   AuthStatus _status = AuthStatus.initial;
   UserModel? _currentUser;
@@ -79,7 +84,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _currentUser = user;
-      _status = AuthStatus.authenticated;
+      await _saveSession();
       _errorMessage = null;
       notifyListeners();
       return true;
@@ -107,7 +112,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _currentUser = user;
-      _status = AuthStatus.authenticated;
+      await _saveSession();
       _errorMessage = null;
       notifyListeners();
       return true;
@@ -134,6 +139,32 @@ class AuthProvider extends ChangeNotifier {
     _currentUser = null;
     _status = AuthStatus.unauthenticated;
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  /// Menyimpan sesi login dan menginisialisasi FCM.
+  ///
+  /// FCM init dilakukan setelah token tersimpan.
+  /// Jika FCM gagal, login tetap berhasil (silent fail).
+  Future<void> _saveSession() async {
+    // Init FCM — WAJIB setelah token tersimpan, WAJIB wrapped try-catch
+    try {
+      await NotificationService.initialize(
+        onTokenReceived: (fcmToken) async {
+          await _dioClient.dio.patch(
+            ApiConstants.fcmToken,
+            data: {'fcm_token': fcmToken},
+          );
+          _log.i('[AuthProvider] FCM token berhasil dikirim ke backend');
+        },
+      );
+    } catch (e, st) {
+      // Silent fail — login tetap sukses meski FCM gagal
+      _log.w('[AuthProvider] FCM init gagal (non-critical): $e\n$st');
+    }
+
+    // Set status authenticated SETELAH FCM setup (atau setelah FCM gagal)
+    _status = AuthStatus.authenticated;
     notifyListeners();
   }
 
