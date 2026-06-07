@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../data/models/order_type_model.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_type_model.dart';
 
 /// Widget for selecting order type (dine_in or take_away)
 class OrderTypeSelector extends StatelessWidget {
@@ -28,16 +30,21 @@ class OrderTypeSelector extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 4),
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
+                color: isSelected ? AppColors.accent : AppColors.card,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : Colors.grey.shade300,
-                  width: isSelected ? 2 : 1,
+                  color: AppColors.dark,
+                  width: isSelected ? 3 : 2,
                 ),
-                borderRadius: BorderRadius.circular(12),
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                    : Colors.white,
+                boxShadow: isSelected
+                    ? [
+                        const BoxShadow(
+                          color: AppColors.dark,
+                          offset: Offset(4, 4),
+                          blurRadius: 0,
+                        ),
+                      ]
+                    : null,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -45,20 +52,16 @@ class OrderTypeSelector extends StatelessWidget {
                   Icon(
                     isDineIn ? Icons.restaurant : Icons.shopping_bag,
                     size: 32,
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.grey.shade600,
+                    color: isSelected ? Colors.white : AppColors.text,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     isDineIn ? 'Makan di Tempat' : 'Bawa Pulang',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey.shade800,
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected ? Colors.white : AppColors.text,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
