@@ -36,6 +36,10 @@ class PaymentRouteArgs {
 class AppRouter {
   AppRouter._();
 
+  /// Global navigator key — digunakan oleh NotificationService untuk navigasi
+  /// dari luar context (tap notifikasi background/terminated).
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   /// Named routes
   static const String splash = '/';
   static const String login = '/login';
