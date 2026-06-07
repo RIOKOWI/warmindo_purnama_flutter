@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/table_provider.dart';
-import '../widgets/table_status_card.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/providers/table_provider.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/widgets/table_status_card.dart';
 
-/// Halaman status meja untuk kasir/admin
 class TableStatusPage extends StatefulWidget {
   const TableStatusPage({super.key});
 
@@ -15,7 +18,6 @@ class _TableStatusPageState extends State<TableStatusPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch tables saat halaman dimuat
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TableProvider>().fetchTables();
     });
@@ -26,16 +28,23 @@ class _TableStatusPageState extends State<TableStatusPage> {
     final provider = context.watch<TableProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Status Meja'),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
+      backgroundColor: AppColors.background,
+      appBar: NeoAppBar(
+        title: 'STATUS MEJA',
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => provider.fetchTables(),
-            tooltip: 'Refresh',
+          GestureDetector(
+            onTap: () => provider.fetchTables(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.dark, width: 2),
+              ),
+              child: const Icon(Icons.refresh, color: AppColors.text),
+            ),
           ),
+          const SizedBox(width: 16),
         ],
       ),
       body: _buildBody(provider),
@@ -43,82 +52,63 @@ class _TableStatusPageState extends State<TableStatusPage> {
   }
 
   Widget _buildBody(TableProvider provider) {
-    // Loading state - show loading indicator
     if (provider.isLoading && provider.tables.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(
-          color: Colors.deepOrange,
-        ),
-      );
+      return Center(child: CircularProgressIndicator(color: AppColors.accent));
     }
 
-    // Error state - show error message
     if (provider.errorMessage != null && provider.tables.isEmpty) {
       return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red.shade300,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              provider.errorMessage!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red.shade700),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () => provider.fetchTables(),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
-                foregroundColor: Colors.white,
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.error, width: 3),
               ),
+              child: const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+            ),
+            const SizedBox(height: 16),
+            Text(provider.errorMessage!, textAlign: TextAlign.center, style: AppTextStyles.body),
+            const SizedBox(height: 16),
+            NeoButtonSmall(
+              label: 'Coba Lagi',
+              icon: Icons.refresh,
+              onPressed: () => provider.fetchTables(),
             ),
           ],
         ),
       );
     }
 
-    // Normal state with data
     return RefreshIndicator(
       onRefresh: () => provider.fetchTables(),
-      color: Colors.deepOrange,
+      color: AppColors.accent,
       child: Column(
         children: [
-          // Summary bar
           _SummaryBar(
             available: provider.availableTables.length,
             occupied: provider.occupiedTables.length,
             total: provider.tables.length,
           ),
-          // Error message thin bar (saat update gagal)
           if (provider.errorMessage != null)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              color: Colors.red.shade100,
-              child: Text(
-                provider.errorMessage!,
-                style: TextStyle(
-                  color: Colors.red.shade700,
-                  fontSize: 12,
-                ),
-              ),
+              color: AppColors.error.withValues(alpha: 0.1),
+              child: Text(provider.errorMessage!,
+                  style: AppTextStyles.caption.copyWith(color: AppColors.error)),
             ),
-          // Grid meja
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
                 childAspectRatio: 0.85,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
               ),
               itemCount: provider.tables.length,
               itemBuilder: (context, index) {
@@ -138,52 +128,65 @@ class _TableStatusPageState extends State<TableStatusPage> {
   void _onTapTable(BuildContext context, table) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(table.tableNumber),
-        content: Text(
-          table.isAvailable
-              ? 'Tandai meja ini sebagai TERISI?'
-              : 'Tandai meja ini sebagai TERSEDIA?',
+      builder: (dialogContext) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.dark, width: 3),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext); // Tutup dialog dulu
-              final provider = context.read<TableProvider>();
-              final ok = await provider.toggleTableStatus(table.id);
-              if (!context.mounted) return;
-              if (!ok) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(provider.errorMessage ?? 'Gagal update status'),
-                    backgroundColor: Colors.red,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(table.tableNumber, style: AppTextStyles.headline),
+              const SizedBox(height: 12),
+              Text(
+                table.isAvailable ? 'Tandai meja ini sebagai TERISI?' : 'Tandai meja ini sebagai TERSEDIA?',
+                style: AppTextStyles.body,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Batal',
+                      isOutlined: true,
+                      onPressed: () => Navigator.pop(dialogContext),
+                    ),
                   ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepOrange,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Ya'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Ya',
+                      onPressed: () async {
+                        Navigator.pop(dialogContext);
+                        final provider = context.read<TableProvider>();
+                        final ok = await provider.toggleTableStatus(table.id);
+                        if (!context.mounted) return;
+                        if (!ok) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(provider.errorMessage ?? 'Gagal update status'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// Widget ringkasan statistik meja
 class _SummaryBar extends StatelessWidget {
-  const _SummaryBar({
-    required this.available,
-    required this.occupied,
-    required this.total,
-  });
+  const _SummaryBar({required this.available, required this.occupied, required this.total});
 
   final int available;
   final int occupied;
@@ -192,28 +195,14 @@ class _SummaryBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          _SummaryChip(
-            label: 'Tersedia',
-            count: available,
-            color: Colors.green,
-          ),
+          _SummaryChip(label: 'Tersedia', count: available, color: AppColors.success),
           const SizedBox(width: 8),
-          _SummaryChip(
-            label: 'Terisi',
-            count: occupied,
-            color: Colors.red,
-          ),
+          _SummaryChip(label: 'Terisi', count: occupied, color: AppColors.error),
           const Spacer(),
-          Text(
-            'Total: $total meja',
- style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-            ),
-          ),
+          Text('Total: $total meja', style: AppTextStyles.body),
         ],
       ),
     );
@@ -221,11 +210,7 @@ class _SummaryBar extends StatelessWidget {
 }
 
 class _SummaryChip extends StatelessWidget {
-  const _SummaryChip({
-    required this.label,
-    required this.count,
-    required this.color,
-  });
+  const _SummaryChip({required this.label, required this.count, required this.color});
 
   final String label;
   final int count;
@@ -234,31 +219,18 @@ class _SummaryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color, width: 2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            '$count',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-              fontSize: 14,
-            ),
-          ),
+          Text('$count', style: AppTextStyles.title.copyWith(color: color)),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-            ),
-          ),
+          Text(label, style: AppTextStyles.caption.copyWith(color: color)),
         ],
       ),
     );
