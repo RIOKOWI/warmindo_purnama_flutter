@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../data/models/user_admin_model.dart';
-import '../providers/user_admin_provider.dart';
-import '../widgets/user_admin_tile.dart';
-import '../widgets/user_form_sheet.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/data/models/user_admin_model.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/providers/user_admin_provider.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/widgets/user_admin_tile.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/widgets/user_form_sheet.dart';
 
-/// Halaman untuk manage user (CRUD)
 class UserManagePage extends StatefulWidget {
   const UserManagePage({super.key});
 
@@ -20,11 +23,8 @@ class _UserManagePageState extends State<UserManagePage> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-
-    // Add listener for infinite scroll
     _scrollController.addListener(_onScroll);
 
-    // Fetch users on init
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UserAdminProvider>().fetchUsers(refresh: true);
     });
@@ -44,50 +44,70 @@ class _UserManagePageState extends State<UserManagePage> {
     }
   }
 
-  /// Open form untuk create/edit user
   Future<void> _openForm(BuildContext context, UserAdminModel? user) async {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) => UserFormSheet(user: user),
     );
   }
 
-  /// Show confirmation dialog untuk delete
-  Future<void> _confirmDelete(
-      BuildContext context, UserAdminModel user) async {
+  Future<void> _confirmDelete(BuildContext context, UserAdminModel user) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Nonaktifkan user?'),
-        content: Text(
-          '${user.name} (${user.email}) akan dinonaktifkan. '
-          'User ini tidak bisa login sampai diaktifkan kembali.',
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.dark, width: 3),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.error, width: 3),
+                ),
+                child: const Icon(Icons.warning, color: AppColors.error, size: 40),
+              ),
+              const SizedBox(height: 16),
+              Text('Nonaktifkan user?', style: AppTextStyles.headline),
+              const SizedBox(height: 8),
+              Text('${user.name} (${user.email}) akan dinonaktifkan.',
+                  style: AppTextStyles.body, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Batal',
+                      isOutlined: true,
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Nonaktifkan',
+                      onPressed: () => Navigator.pop(context, true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Nonaktifkan'),
-          ),
-        ],
+        ),
       ),
     );
 
-    if (confirmed == true && context.mounted) {
-      await _doDelete(context, user);
-    }
+    if (confirmed == true && context.mounted) await _doDelete(context, user);
   }
 
-  /// Do delete user
   Future<void> _doDelete(BuildContext context, UserAdminModel user) async {
     final provider = context.read<UserAdminProvider>();
     final success = await provider.deleteUser(user.id);
@@ -95,45 +115,68 @@ class _UserManagePageState extends State<UserManagePage> {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            success
-                ? 'User ${user.name} berhasil dinonaktifkan'
-                : 'Gagal menonaktifkan user: ${provider.errorMessage}',
-          ),
-          backgroundColor: success ? Colors.green : Colors.red,
+          content: Text(success ? 'User ${user.name} berhasil dinonaktifkan' : 'Gagal: ${provider.errorMessage}'),
+          backgroundColor: success ? AppColors.success : AppColors.error,
         ),
       );
     }
   }
 
-  /// Show confirmation dialog untuk restore
-  Future<void> _confirmRestore(
-      BuildContext context, UserAdminModel user) async {
+  Future<void> _confirmRestore(BuildContext context, UserAdminModel user) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Aktifkan kembali?'),
-        content: Text('${user.name} (${user.email}) akan dapat login kembali.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.dark, width: 3),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.success, width: 3),
+                ),
+                child: const Icon(Icons.check_circle, color: AppColors.success, size: 40),
+              ),
+              const SizedBox(height: 16),
+              Text('Aktifkan kembali?', style: AppTextStyles.headline),
+              const SizedBox(height: 8),
+              Text('${user.name} akan dapat login kembali.',
+                  style: AppTextStyles.body, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Batal',
+                      isOutlined: true,
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Aktifkan',
+                      onPressed: () => Navigator.pop(context, true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text('Aktifkan'),
-          ),
-        ],
+        ),
       ),
     );
 
-    if (confirmed == true && context.mounted) {
-      await _doRestore(context, user);
-    }
+    if (confirmed == true && context.mounted) await _doRestore(context, user);
   }
 
-  /// Do restore user
   Future<void> _doRestore(BuildContext context, UserAdminModel user) async {
     final provider = context.read<UserAdminProvider>();
     final success = await provider.restoreUser(user.id);
@@ -141,110 +184,18 @@ class _UserManagePageState extends State<UserManagePage> {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            success
-                ? 'User ${user.name} berhasil diaktifkan kembali'
-                : 'Gagal mengaktifkan user: ${provider.errorMessage}',
-          ),
-          backgroundColor: success ? Colors.green : Colors.red,
+          content: Text(success ? 'User ${user.name} berhasil diaktifkan' : 'Gagal: ${provider.errorMessage}'),
+          backgroundColor: success ? AppColors.success : AppColors.error,
         ),
       );
     }
-  }
-
-  /// Build summary header
-  Widget _buildSummaryHeader(UserAdminProvider provider) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            _SummaryChip('Admin', provider.totalAdmin, Colors.red),
-            const SizedBox(width: 6),
-            _SummaryChip('Kasir', provider.totalKasir, Colors.blue),
-            const SizedBox(width: 6),
-            _SummaryChip('Customer', provider.totalCustomer, Colors.green),
-            if (provider.totalDeleted > 0) ...[
-              const SizedBox(width: 6),
-              _SummaryChip('Nonaktif', provider.totalDeleted, Colors.grey),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Build body berdasarkan state
-  Widget _buildBody(UserAdminProvider provider) {
-    if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (provider.errorMessage != null && provider.users.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              provider.errorMessage!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => provider.fetchUsers(refresh: true),
-              child: const Text('Coba lagi'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (provider.users.isEmpty) {
-      return const Center(child: Text('Belum ada user'));
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => provider.fetchUsers(refresh: true),
-      child: ListView.builder(
-        controller: _scrollController,
-        itemCount: provider.users.length + (provider.isLoadingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= provider.users.length) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-
-          final user = provider.users[index];
-          return UserAdminTile(
-            user: user,
-            onEdit: () => _openForm(context, user),
-            onDelete: () => _confirmDelete(context, user),
-            onRestore: () => _confirmRestore(context, user),
-          );
-        },
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kelola User'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () =>
-                context.read<UserAdminProvider>().fetchUsers(refresh: true),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.background,
+      appBar: const NeoAppBar(title: 'KELOLA USER', showBackButton: true),
       body: Consumer<UserAdminProvider>(
         builder: (context, provider, _) {
           return Column(
@@ -255,15 +206,121 @@ class _UserManagePageState extends State<UserManagePage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openForm(context, null),
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        decoration: const BoxDecoration(
+          boxShadow: [BoxShadow(color: AppColors.dark, offset: Offset(5, 5), blurRadius: 0)],
+        ),
+        child: FloatingActionButton(
+          onPressed: () => _openForm(context, null),
+          backgroundColor: AppColors.accent,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryHeader(UserAdminProvider provider) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _SummaryChip('Admin', provider.totalAdmin, AppColors.accent),
+            const SizedBox(width: 8),
+            _SummaryChip('Kasir', provider.totalKasir, AppColors.info),
+            const SizedBox(width: 8),
+            _SummaryChip('Customer', provider.totalCustomer, AppColors.success),
+            if (provider.totalDeleted > 0) ...[
+              const SizedBox(width: 8),
+              _SummaryChip('Nonaktif', provider.totalDeleted, AppColors.textLight),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(UserAdminProvider provider) {
+    if (provider.isLoading) {
+      return Center(child: CircularProgressIndicator(color: AppColors.accent));
+    }
+
+    if (provider.errorMessage != null && provider.users.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.error, width: 3),
+              ),
+              child: const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+            ),
+            const SizedBox(height: 16),
+            Text(provider.errorMessage!, textAlign: TextAlign.center, style: AppTextStyles.body),
+            const SizedBox(height: 16),
+            NeoButtonSmall(label: 'Coba Lagi', icon: Icons.refresh, onPressed: () => provider.fetchUsers(refresh: true)),
+          ],
+        ),
+      );
+    }
+
+    if (provider.users.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.dark, width: 3),
+              ),
+              child: Icon(Icons.people, size: 48, color: AppColors.text.withValues(alpha: 0.5)),
+            ),
+            const SizedBox(height: 16),
+            Text('Belum ada user', style: AppTextStyles.headline),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => provider.fetchUsers(refresh: true),
+      color: AppColors.accent,
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        itemCount: provider.users.length + (provider.isLoadingMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index >= provider.users.length) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+            );
+          }
+
+          final user = provider.users[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: UserAdminTile(
+              user: user,
+              onEdit: () => _openForm(context, user),
+              onDelete: () => _confirmDelete(context, user),
+              onRestore: () => _confirmRestore(context, user),
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-/// Chip untuk menampilkan summary count
 class _SummaryChip extends StatelessWidget {
   final String label;
   final int count;
@@ -274,37 +331,24 @@ class _SummaryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color, width: 2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(width: 6),
+          Text(label, style: AppTextStyles.caption.copyWith(color: color)),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              count.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
+            child: Text('$count', style: AppTextStyles.caption.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
