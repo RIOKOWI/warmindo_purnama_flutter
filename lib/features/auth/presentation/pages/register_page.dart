@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_text_field.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 
-/// Register page with name, email, phone, and password form.
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -32,15 +36,12 @@ class _RegisterPageState extends State<RegisterPage> {
     if (v == null || v.isEmpty) {
       return 'Password tidak boleh kosong';
     }
-    // Must have uppercase letter
     if (!v.contains(RegExp(r'[A-Z]'))) {
       return 'Harus ada huruf kapital';
     }
-    // Must have number
     if (!v.contains(RegExp(r'[0-9]'))) {
       return 'Harus ada angka';
     }
-    // Must have symbol
     if (!v.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
       return 'Harus ada simbol';
     }
@@ -66,7 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(auth.errorMessage ?? 'Registrasi gagal'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -77,10 +78,10 @@ class _RegisterPageState extends State<RegisterPage> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Akun'),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
+      backgroundColor: AppColors.background,
+      appBar: const NeoAppBar(
+        title: 'Daftar Akun',
+        showBackButton: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -93,13 +94,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
 
                 // Name field
-                TextFormField(
+                NeoTextField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama',
-                    prefixIcon: Icon(Icons.person_outlined),
-                    border: OutlineInputBorder(),
-                  ),
+                  label: 'Nama',
+                  hint: 'John Doe',
+                  prefixIcon: const Icon(Icons.person_outlined),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return 'Nama tidak boleh kosong';
@@ -110,14 +109,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
 
                 // Email field
-                TextFormField(
+                NeoTextField(
                   controller: _emailController,
+                  label: 'Email',
+                  hint: 'nama@email.com',
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
-                  ),
+                  prefixIcon: const Icon(Icons.email_outlined),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return 'Email tidak boleh kosong';
@@ -131,14 +128,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
 
                 // Phone field
-                TextFormField(
+                NeoTextField(
                   controller: _phoneController,
+                  label: 'Nomor HP',
+                  hint: '081234567890',
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Nomor HP',
-                    prefixIcon: Icon(Icons.phone_outlined),
-                    border: OutlineInputBorder(),
-                  ),
+                  prefixIcon: const Icon(Icons.phone_outlined),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return 'Nomor HP tidak boleh kosong';
@@ -149,67 +144,51 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
 
                 // Password field
-                TextFormField(
+                NeoTextField(
                   controller: _passwordController,
+                  label: 'Password',
+                  hint: '••••••••',
                   obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                  prefixIcon: const Icon(Icons.lock_outlined),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.text,
                     ),
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
+                    },
                   ),
                   validator: _validatePassword,
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Password harus mengandung huruf kapital, angka, dan simbol',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: AppTextStyles.caption,
                 ),
                 const SizedBox(height: 24),
 
                 // Register button
-                SizedBox(
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: auth.isLoading ? null : _onRegister,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepOrange,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: auth.isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Daftar',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
+                NeoButton(
+                  label: 'DAFTAR',
+                  isLoading: auth.isLoading,
+                  onPressed: _onRegister,
+                  width: double.infinity,
                 ),
                 const SizedBox(height: 16),
 
                 // Login link
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Sudah punya akun? Login'),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'Sudah punya akun? Login',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.accent,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
