@@ -48,7 +48,7 @@ app.*.map.json
 .vscode/templates
 
 docs/
-# lib/firebase_options.dart
+lib/firebase_options.dart
 .claude/
 CLAUDE.md
 .env

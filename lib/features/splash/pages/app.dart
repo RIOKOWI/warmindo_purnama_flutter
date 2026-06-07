@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/domain/auth_status.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
@@ -16,6 +17,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: AppRouter.navigatorKey,
       title: 'Warmindo Purnama',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -57,10 +59,10 @@ class App extends StatelessWidget {
             }
             // Admin/Kasir -> show dashboard
             else if (authProvider.role == 'kasir') { 
-              return TableStatusPage();
+              return HomePage();
             }
             else { 
-              return PaymentListPage();
+              return ProductManagePage();
             }
           }
 
