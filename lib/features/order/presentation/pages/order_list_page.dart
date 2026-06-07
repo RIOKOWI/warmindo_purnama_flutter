@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/routes/app_router.dart';
-import '../../../../core/guards/auth_guard.dart';
-import '../../../checkout/data/models/order_model.dart';
-import '../providers/order_provider.dart';
-import '../widgets/order_status_badge.dart';
+import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
+import 'package:warmindo_purnama_flutter/core/guards/auth_guard.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_model.dart';
+import 'package:warmindo_purnama_flutter/features/order/presentation/providers/order_provider.dart';
+import 'package:warmindo_purnama_flutter/features/order/presentation/widgets/order_status_badge.dart';
 
-/// Page displaying list of user's orders with pagination
 class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
 
@@ -24,8 +28,7 @@ class _OrderListPageState extends State<OrderListPage> {
     _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<OrderProvider>();
-      provider.fetchOrders(refresh: true);
+      context.read<OrderProvider>().fetchOrders(refresh: true);
     });
 
     _scrollController.addListener(_onScroll);
@@ -48,15 +51,13 @@ class _OrderListPageState extends State<OrderListPage> {
   Widget build(BuildContext context) {
     return AuthGuard(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Pesanan Saya'),
-          backgroundColor: Colors.deepOrange,
-          foregroundColor: Colors.white,
-        ),
+        backgroundColor: AppColors.background,
+        appBar: const NeoAppBar(title: 'PESANAN SAYA'),
         body: Consumer<OrderProvider>(
           builder: (context, provider, _) {
             return RefreshIndicator(
               onRefresh: () => provider.fetchOrders(refresh: true),
+              color: AppColors.accent,
               child: _buildBody(provider),
             );
           },
@@ -67,23 +68,19 @@ class _OrderListPageState extends State<OrderListPage> {
 
   Widget _buildBody(OrderProvider provider) {
     if (provider.isLoadingList && provider.orders.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: AppColors.accent));
     }
 
     if (provider.errorMessage != null && provider.orders.isEmpty) {
       return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              provider.errorMessage!,
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
+            Text(provider.errorMessage!, style: AppTextStyles.body),
             const SizedBox(height: 16),
-            ElevatedButton(
+            NeoButtonSmall(
+              label: 'Coba lagi',
               onPressed: () => provider.fetchOrders(refresh: true),
-              child: const Text('Coba lagi'),
             ),
           ],
         ),
@@ -91,23 +88,24 @@ class _OrderListPageState extends State<OrderListPage> {
     }
 
     if (provider.orders.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.receipt_long,
-              size: 64,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Belum ada pesanan',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.dark, width: 3),
               ),
+              child: Icon(Icons.receipt_long,
+                  size: 48, color: AppColors.text.withValues(alpha: 0.5)),
             ),
+            const SizedBox(height: 16),
+            Text('Belum ada pesanan', style: AppTextStyles.headline),
+            const SizedBox(height: 8),
+            Text('Yuk mulai pesan!', style: AppTextStyles.body),
           ],
         ),
       );
@@ -119,20 +117,22 @@ class _OrderListPageState extends State<OrderListPage> {
       itemCount: provider.orders.length + (provider.hasNextPage ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == provider.orders.length) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
           );
         }
 
         final order = provider.orders[index];
-        return _OrderListTile(order: order);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _OrderListTile(order: order),
+        );
       },
     );
   }
 }
 
-/// Individual order tile in the list
 class _OrderListTile extends StatelessWidget {
   const _OrderListTile({required this.order});
 
@@ -140,42 +140,51 @@ class _OrderListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
+    final currencyFormat = NumberFormat('#,###');
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          order.invoiceNumber,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              '${order.orderItems.length} item · ${currencyFormat.format(order.totalAmount)}',
-              style: const TextStyle(color: Colors.grey),
+    return NeoCard(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRouter.orderDetail,
+          arguments: order.id,
+        );
+      },
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.dark, width: 2),
             ),
-            const SizedBox(height: 8),
-            OrderStatusBadge(status: order.status),
-          ],
-        ),
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            AppRouter.orderDetail,
-            arguments: order.id,
-          );
-        },
+            child: const Icon(Icons.receipt_long, color: AppColors.accent),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  order.invoiceNumber,
+                  style: AppTextStyles.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${order.orderItems.length} item · Rp ${currencyFormat.format(order.totalAmount)}',
+                  style: AppTextStyles.body.copyWith(color: AppColors.textLight),
+                ),
+                const SizedBox(height: 8),
+                OrderStatusBadge(status: order.status),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right, color: AppColors.text),
+        ],
       ),
     );
   }
