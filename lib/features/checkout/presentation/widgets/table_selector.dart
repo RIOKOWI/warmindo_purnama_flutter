@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../data/models/table_model.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/data/models/table_model.dart';
 
 /// Widget for selecting a table (shown when dine_in is selected)
 class TableSelector extends StatelessWidget {
@@ -20,13 +22,14 @@ class TableSelector extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(12),
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.dark, width: 3),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             'Tidak ada meja tersedia',
-            style: TextStyle(color: Colors.grey),
+            style: AppTextStyles.body.copyWith(color: AppColors.textLight),
           ),
         ),
       );
@@ -51,7 +54,7 @@ class TableSelector extends StatelessWidget {
           onTap: isAvailable
               ? () {
                   if (isSelected) {
-                    onSelect(null); // Unselect
+                    onSelect(null);
                   } else {
                     onSelect(table);
                   }
@@ -59,31 +62,35 @@ class TableSelector extends StatelessWidget {
               : null,
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey.shade300,
-                width: isSelected ? 2 : 1,
-              ),
-              borderRadius: BorderRadius.circular(8),
               color: !isAvailable
-                  ? Colors.grey.shade200
+                  ? AppColors.background
                   : isSelected
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                      : Colors.white,
+                      ? AppColors.accent
+                      : AppColors.card,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isAvailable ? AppColors.dark : AppColors.dark.withValues(alpha: 0.3),
+                width: isSelected ? 3 : 2,
+              ),
+              boxShadow: isSelected && isAvailable
+                  ? [
+                      const BoxShadow(
+                        color: AppColors.dark,
+                        offset: Offset(3, 3),
+                        blurRadius: 0,
+                      ),
+                    ]
+                  : null,
             ),
             child: Center(
               child: Text(
-                // Extract number from "MEJA 01" -> "01"
                 table.tableNumber.replaceAll('MEJA ', ''),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                style: AppTextStyles.title.copyWith(
                   color: !isAvailable
-                      ? Colors.grey.shade400
+                      ? AppColors.text.withValues(alpha: 0.3)
                       : isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey.shade800,
+                          ? Colors.white
+                          : AppColors.text,
                 ),
               ),
             ),
