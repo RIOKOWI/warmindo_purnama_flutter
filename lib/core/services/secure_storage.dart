@@ -19,6 +19,7 @@ class SecureStorage {
 
   static const String _tokenKey = 'auth_token';
   static const String _roleKey = 'user_role';
+  static const String _hasSeenOnboardingKey = 'has_seen_onboarding';
 
   /// Save authentication token
   Future<void> saveToken(String token) async {
@@ -54,5 +55,15 @@ class SecureStorage {
   Future<bool> hasToken() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  /// Onboarding methods
+  Future<bool> hasSeenOnboarding() async {
+    final value = await _storage.read(key: _hasSeenOnboardingKey);
+    return value == 'true';
+  }
+
+  Future<void> setHasSeenOnboarding() async {
+    await _storage.write(key: _hasSeenOnboardingKey, value: 'true');
   }
 }
