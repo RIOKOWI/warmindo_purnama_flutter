@@ -20,6 +20,7 @@ import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/p
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/category_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/profile/presentation/pages/profile_page.dart';
 
 /// Arguments for payment route
 /// Can hold just orderId (new payment) or orderId + existingPayment (resuming payment)
@@ -59,6 +60,7 @@ class AppRouter {
   static const String productManage = '/admin/products';
   static const String categoryManage = '/admin/categories';
   static const String userManage = '/admin/users';
+  static const String profile = '/profile';
 
   /// Route generator function
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -155,6 +157,11 @@ class AppRouter {
             allowedRoles: const ['admin'],
             child: const UserManagePage(),
           ),
+          settings,
+        );
+      case profile:
+        return _buildRoute(
+          AuthGuard(child: const ProfilePage()),
           settings,
         );
       case dashboard:
