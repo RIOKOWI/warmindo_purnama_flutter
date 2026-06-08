@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/domain/repositories/auth_repository_impl.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/profile/data/datasources/profile_remote_datasource.dart';
+import '../../features/profile/domain/repositories/profile_repository_impl.dart';
+import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../../features/cart/data/datasources/cart_remote_datasource.dart';
 import '../../features/cart/domain/repositories/cart_repository_impl.dart';
 import '../../features/cart/presentation/providers/cart_provider.dart';
@@ -45,6 +48,7 @@ final CheckoutRemoteDataSource _checkoutRemoteDataSource = CheckoutRemoteDataSou
 final OrderRemoteDataSource _orderRemoteDataSource = OrderRemoteDataSource(_dioClient);
 final TableRemoteDataSource _tableRemoteDataSource = TableRemoteDataSource(_dioClient);
 final PaymentListDataSource _paymentListDataSource = PaymentListDataSource(_dioClient);
+final ProfileRemoteDataSource _profileRemoteDataSource = ProfileRemoteDataSource(_dioClient);
 
 // Admin datasources
 final ProductAdminDataSource _productAdminDataSource = ProductAdminDataSource(_dioClient);
@@ -59,6 +63,7 @@ final CheckoutRepositoryImpl _checkoutRepository = CheckoutRepositoryImpl(dataSo
 final OrderRepositoryImpl _orderRepository = OrderRepositoryImpl(dataSource: _orderRemoteDataSource);
 final TableRepositoryImpl _tableRepository = TableRepositoryImpl(dataSource: _tableRemoteDataSource);
 final PaymentListRepositoryImpl _paymentListRepository = PaymentListRepositoryImpl(dataSource: _paymentListDataSource);
+final ProfileRepositoryImpl _profileRepository = ProfileRepositoryImpl(dataSource: _profileRemoteDataSource);
 
 // Admin repositories
 final ProductAdminRepositoryImpl _productAdminRepository = ProductAdminRepositoryImpl(dataSource: _productAdminDataSource);
@@ -97,6 +102,9 @@ class DependencyInjection {
         ),
         ChangeNotifierProvider<UserAdminProvider>(
           create: (_) => UserAdminProvider(repository: _userAdminRepository),
+        ),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(repository: _profileRepository),
         ),
       ];
 }
