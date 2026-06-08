@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:warmindo_purnama_flutter/core/guards/auth_guard.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import 'package:warmindo_purnama_flutter/core/services/secure_storage.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
@@ -25,10 +26,12 @@ import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/p
 class PaymentRouteArgs {
   final int orderId;
   final PaymentModel? existingPayment;
+  final int totalAmount;
 
   const PaymentRouteArgs({
     required this.orderId,
     this.existingPayment,
+    this.totalAmount = 0,
   });
 }
 
@@ -65,11 +68,20 @@ class AppRouter {
       case register:
         return _buildRoute(const RegisterPage(), settings);
       case home:
-        return _buildRoute(const HomePage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const HomePage()),
+          settings,
+        );
       case cart:
-        return _buildRoute(const CartPage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const CartPage()),
+          settings,
+        );
       case checkout:
-        return _buildRoute(const CheckoutPage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const CheckoutPage()),
+          settings,
+        );
       case payment:
         final args = settings.arguments as PaymentRouteArgs;
         // Create scoped PaymentProvider for each payment session
@@ -77,34 +89,74 @@ class AppRouter {
         final paymentDataSource = PaymentRemoteDataSource(dioClient);
         final paymentRepository = PaymentRepositoryImpl(dataSource: paymentDataSource);
         return _buildRoute(
-          ChangeNotifierProvider(
-            create: (_) {
-              final provider = PaymentProvider(repository: paymentRepository);
-              // If there's an existing payment, set it immediately
-              if (args.existingPayment != null) {
-                provider.setExistingPayment(args.existingPayment!);
-              }
-              return provider;
-            },
-            child: PaymentPage(orderId: args.orderId),
+          AuthGuard(
+            child: ChangeNotifierProvider(
+              create: (_) {
+                final provider = PaymentProvider(repository: paymentRepository);
+                // If there's an existing payment, set it immediately
+                if (args.existingPayment != null) {
+                  provider.setExistingPayment(args.existingPayment!);
+                }
+                // Set total amount for payment method availability
+                provider.totalAmount = args.totalAmount;
+                return provider;
+              },
+              child: PaymentPage(orderId: args.orderId, totalAmount: args.totalAmount),
+            ),
           ),
           settings,
         );
       case orderList:
-        return _buildRoute(const OrderListPage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const OrderListPage()),
+          settings,
+        );
       case orderDetail:
         final orderId = settings.arguments as int;
-        return _buildRoute(OrderDetailPage(orderId: orderId), settings);
+        return _buildRoute(
+          AuthGuard(child: OrderDetailPage(orderId: orderId)),
+          settings,
+        );
       case tableStatus:
-        return _buildRoute(const TableStatusPage(), settings);
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['kasir'],
+            child: const TableStatusPage(),
+          ),
+          settings,
+        );
       case paymentList:
-        return _buildRoute(const PaymentListPage(), settings);
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['kasir'],
+            child: const PaymentListPage(),
+          ),
+          settings,
+        );
       case productManage:
-        return _buildRoute(const ProductManagePage(), settings);
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const ProductManagePage(),
+          ),
+          settings,
+        );
       case categoryManage:
-        return _buildRoute(const CategoryManagePage(), settings);
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const CategoryManagePage(),
+          ),
+          settings,
+        );
       case userManage:
-        return _buildRoute(const UserManagePage(), settings);
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const UserManagePage(),
+          ),
+          settings,
+        );
       case dashboard:
         return _buildRoute(const _DashboardPage(), settings);
       default:
