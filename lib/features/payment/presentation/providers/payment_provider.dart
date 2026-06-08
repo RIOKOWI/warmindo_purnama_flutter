@@ -14,6 +14,8 @@ class PaymentProvider extends ChangeNotifier {
   final PaymentRepository? _repository;
   final Logger _log = Logger();
 
+  int totalAmount = 0;
+
   PaymentMethod _selectedMethod = PaymentMethod.qris;
   PaymentModel? _payment;
   bool _isCreating = false;
