@@ -3,6 +3,7 @@ import 'package:warmindo_purnama_flutter/core/widgets/floating_bottom_navbar.dar
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
 import 'package:warmindo_purnama_flutter/features/cart/presentation/pages/cart_page.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
+import 'package:warmindo_purnama_flutter/features/profile/presentation/pages/profile_page.dart';
 
 class CustomerShell extends StatefulWidget {
   const CustomerShell({super.key});
@@ -18,12 +19,14 @@ class _CustomerShellState extends State<CustomerShell> {
     HomePage(),
     CartPage(),
     OrderListPage(),
+    ProfilePage(),
   ];
 
   final List<NavItemData> _navItems = const [
     NavItemData(icon: Icons.restaurant_menu, label: 'Menu'),
     NavItemData(icon: Icons.shopping_cart, label: 'Keranjang'),
     NavItemData(icon: Icons.receipt_long, label: 'Pesanan'),
+    NavItemData(icon: Icons.person_pin, label: 'Profil'),
   ];
 
   @override

@@ -5,6 +5,7 @@ import 'package:warmindo_purnama_flutter/features/product/presentation/pages/hom
 import 'package:warmindo_purnama_flutter/features/cart/presentation/pages/cart_page.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/payment_list_page.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/table_status_page.dart';
+import 'package:warmindo_purnama_flutter/features/profile/presentation/pages/profile_page.dart';
 
 class KasirShell extends StatefulWidget {
   const KasirShell({super.key});
@@ -22,6 +23,7 @@ class _KasirShellState extends State<KasirShell> {
     CartPage(),
     PaymentListPage(),
     TableStatusPage(),
+    ProfilePage(),
   ];
 
   final List<NavItemData> _navItems = const [
@@ -30,6 +32,7 @@ class _KasirShellState extends State<KasirShell> {
     NavItemData(icon: Icons.shopping_cart, label: 'Keranjang'),
     NavItemData(icon: Icons.payment, label: 'Bayar'),
     NavItemData(icon: Icons.table_restaurant, label: 'Meja'),
+    NavItemData(icon: Icons.person_pin, label: 'Profil'),
   ];
 
   @override
