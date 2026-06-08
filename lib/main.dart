@@ -3,7 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:warmindo_purnama_flutter/features/splash/pages/app.dart';
+import 'package:warmindo_purnama_flutter/core/services/app.dart';
 import 'core/injection/dependency_injection.dart';
 import 'core/services/notification_service.dart';
 import 'firebase_options.dart';
