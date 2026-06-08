@@ -1,3 +1,17 @@
+/// Minimum amount for non-QRIS payment methods
+const int kMinimumAmountForVa = 10000;
+
+/// Check if payment method is available based on amount
+extension PaymentMethodAvailability on PaymentMethod {
+  /// Returns true if this payment method is available for the given amount
+  bool isAvailableForAmount(int amount) {
+    // QRIS is always available
+    if (isQris) return true;
+    // VA methods require minimum amount
+    return amount >= kMinimumAmountForVa;
+  }
+}
+
 /// Payment method enum for all available payment options
 enum PaymentMethod {
   qris,
