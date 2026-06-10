@@ -39,13 +39,34 @@ class _LoginPageState extends State<LoginPage> {
 
     if (!mounted) return;
 
-    if (!success) {
+    if (success) {
+      // Navigasi berdasarkan role user
+      _navigateBasedOnRole(auth.role);
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(auth.errorMessage ?? 'Login gagal'),
           backgroundColor: AppColors.error,
         ),
       );
+    }
+  }
+
+  void _navigateBasedOnRole(String? role) {
+    final navigator = AppRouter.navigatorKey.currentState;
+    if (navigator == null) return;
+
+    switch (role) {
+      case 'admin':
+        navigator.pushNamedAndRemoveUntil(AppRouter.adminShell, (route) => false);
+        break;
+      case 'kasir':
+        navigator.pushNamedAndRemoveUntil(AppRouter.kasirShell, (route) => false);
+        break;
+      case 'customer':
+      default:
+        navigator.pushNamedAndRemoveUntil(AppRouter.customerShell, (route) => false);
+        break;
     }
   }
 

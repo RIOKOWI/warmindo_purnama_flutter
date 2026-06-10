@@ -62,7 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.pushReplacementNamed(context, AppRouter.home);
+      _navigateBasedOnRole(auth.role);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -70,6 +70,24 @@ class _RegisterPageState extends State<RegisterPage> {
           backgroundColor: AppColors.error,
         ),
       );
+    }
+  }
+
+  void _navigateBasedOnRole(String? role) {
+    final navigator = AppRouter.navigatorKey.currentState;
+    if (navigator == null) return;
+
+    switch (role) {
+      case 'admin':
+        navigator.pushNamedAndRemoveUntil(AppRouter.adminShell, (route) => false);
+        break;
+      case 'kasir':
+        navigator.pushNamedAndRemoveUntil(AppRouter.kasirShell, (route) => false);
+        break;
+      case 'customer':
+      default:
+        navigator.pushNamedAndRemoveUntil(AppRouter.customerShell, (route) => false);
+        break;
     }
   }
 
