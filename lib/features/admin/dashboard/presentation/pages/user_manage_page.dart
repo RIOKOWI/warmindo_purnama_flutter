@@ -194,8 +194,7 @@ class _UserManagePageState extends State<UserManagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const NeoAppBar(title: 'KELOLA USER', showBackButton: true),
+      appBar: NeoAppBar(title: 'KELOLA USER'),
       body: Consumer<UserAdminProvider>(
         builder: (context, provider, _) {
           return Column(

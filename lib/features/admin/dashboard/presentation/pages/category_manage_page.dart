@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/providers/product_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
 import '../providers/category_admin_provider.dart';
@@ -131,16 +132,8 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kelola Kategori'),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadCategories,
-          ),
-        ],
+      appBar: NeoAppBar(
+        title: 'KELOLA KATEGORI'
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
@@ -174,7 +167,6 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _loadCategories,
-              icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepOrange,

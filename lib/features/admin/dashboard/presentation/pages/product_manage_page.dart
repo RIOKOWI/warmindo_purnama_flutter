@@ -153,25 +153,6 @@ class _ProductManagePageState extends State<ProductManagePage> {
       backgroundColor: AppColors.background,
       appBar: NeoAppBar(
         title: 'KELOLA PRODUK',
-        actions: [
-          GestureDetector(
-            onTap: _loadData,
-            child: _ActionButton(icon: Icons.refresh),
-          ),
-          GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRouter.categoryManage),
-            child: _ActionButton(icon: Icons.category),
-          ),
-          GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRouter.userManage),
-            child: _ActionButton(icon: Icons.people),
-          ),
-          GestureDetector(
-            onTap: () => auth.logout(),
-            child: _ActionButton(icon: Icons.logout),
-          ),
-          const SizedBox(width: 16),
-        ],
       ),
       body: _buildBody(),
       floatingActionButton: Container(
