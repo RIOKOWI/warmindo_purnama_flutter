@@ -50,7 +50,11 @@ class _CartPageState extends State<CartPage> {
           const SizedBox(width: 16),
         ],
       ),
-      body: _buildBody(cart),
+      body: RefreshIndicator(
+        onRefresh: () => context.read<CartProvider>().fetchCart(),
+        color: AppColors.accent,
+        child: _buildBody(cart),
+      ),
       bottomNavigationBar: cart.items.isNotEmpty
           ? _BottomCheckout(totalPrice: cart.totalPrice)
           : null,
