@@ -52,7 +52,7 @@ class _OrderListPageState extends State<OrderListPage> {
     return AuthGuard(
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: const NeoAppBar(title: 'PESANAN SAYA'),
+        appBar: const NeoAppBar(title: 'PESANAN'),
         body: Consumer<OrderProvider>(
           builder: (context, provider, _) {
             return RefreshIndicator(

@@ -31,21 +31,6 @@ class _TableStatusPageState extends State<TableStatusPage> {
       backgroundColor: AppColors.background,
       appBar: NeoAppBar(
         title: 'STATUS MEJA',
-        actions: [
-          GestureDetector(
-            onTap: () => provider.fetchTables(),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.dark, width: 2),
-              ),
-              child: const Icon(Icons.refresh, color: AppColors.text),
-            ),
-          ),
-          const SizedBox(width: 16),
-        ],
       ),
       body: _buildBody(provider),
     );

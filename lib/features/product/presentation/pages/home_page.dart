@@ -33,87 +33,28 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: AppColors.background,
       appBar: NeoAppBar(
         title: 'MENU',
-        actions: [
-          Consumer<CartProvider>(
-            builder: (_, cart, __) => GestureDetector(
-              onTap: () => Navigator.pushNamed(context, AppRouter.cart),
-              child: Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.card,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.dark, width: 2),
-                    ),
-                    child: const Icon(Icons.shopping_cart, color: AppColors.text),
-                  ),
-                  if (cart.totalItemCount > 0)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppColors.accent,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${cart.totalItemCount}',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRouter.orderList),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.dark, width: 2),
-              ),
-              child: const Icon(Icons.receipt_long, color: AppColors.text),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => auth.logout(),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.dark, width: 2),
-              ),
-              child: const Icon(Icons.logout, color: AppColors.text),
-            ),
-          ),
-          const SizedBox(width: 16),
-        ],
       ),
-      body: Column(
-        children: [
-          const CategoryFilterWidget(),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(top: 8),
-              decoration: const BoxDecoration(
-                color: AppColors.background,
-              ),
-              child: const ProductGrid(),
+      body: Consumer<ProductProvider>(
+        builder: (context, provider, _) {
+          return RefreshIndicator(
+            onRefresh: provider.refresh,
+            color: AppColors.accent,
+            child: Column(
+              children: [
+                const CategoryFilterWidget(),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    decoration: const BoxDecoration(
+                      color: AppColors.background,
+                    ),
+                    child: const ProductGrid(),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

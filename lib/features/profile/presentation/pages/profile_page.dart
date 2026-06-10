@@ -73,116 +73,113 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Consumer<ProfileProvider>(
         builder: (context, provider, _) {
-          if (provider.state == ProfileState.loading &&
-              provider.profile == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (provider.state == ProfileState.error && provider.profile == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(provider.errorMessage ?? 'Terjadi kesalahan'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => provider.getProfile(),
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final profile = provider.profile;
-          if (profile == null) {
-            return const Center(child: Text('Profile tidak ditemukan'));
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // User Avatar & Name
-                CircleAvatar(
-                  radius: 50,
-                  child: Text(
-                    profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
-                    style: const TextStyle(fontSize: 40),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  profile.name,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // User Info Card
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _buildInfoRow(Icons.email, 'Email', profile.email),
-                        const Divider(),
-                        _buildInfoRow(Icons.phone, 'Telepon', profile.phone ?? '-'),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Action Buttons
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _showEditProfileSheet,
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Edit Akun'),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _showChangePasswordSheet,
-                    icon: const Icon(Icons.lock),
-                    label: const Text('Ubah Password'),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton.icon(
-                    onPressed: _logout,
-                    icon: const Icon(Icons.logout, color: Colors.red),
-                    label: const Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          return RefreshIndicator(
+            onRefresh: provider.getProfile,
+            child: _buildBody(provider),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBody(ProfileProvider provider) {
+    if (provider.state == ProfileState.loading &&
+        provider.profile == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.state == ProfileState.error && provider.profile == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(provider.errorMessage ?? 'Terjadi kesalahan'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => provider.getProfile(),
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final profile = provider.profile;
+    if (profile == null) {
+      return const Center(child: Text('Profile tidak ditemukan'));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // User Avatar & Name
+          CircleAvatar(
+            radius: 50,
+            child: Text(
+              profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+              style: const TextStyle(fontSize: 40),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            profile.name,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+
+          const SizedBox(height: 32),
+
+          // User Info Card
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildInfoRow(Icons.email, 'Email', profile.email),
+                  const Divider(),
+                  _buildInfoRow(Icons.phone, 'Telepon', profile.phone ?? '-'),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Action Buttons
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _showEditProfileSheet,
+              icon: const Icon(Icons.edit),
+              label: const Text('Edit Akun'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _showChangePasswordSheet,
+              icon: const Icon(Icons.lock),
+              label: const Text('Ubah Password'),
+            ),
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton.icon(
+              onPressed: _logout,
+              icon: const Icon(Icons.logout, color: Colors.red),
+              label: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

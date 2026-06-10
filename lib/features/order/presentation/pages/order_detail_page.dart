@@ -55,7 +55,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ),
         body: Consumer<OrderProvider>(
           builder: (context, provider, _) {
-            return _buildBody(context, provider);
+            return RefreshIndicator(
+              onRefresh: () => provider.fetchOrderDetail(widget.orderId),
+              child: _buildBody(context, provider),
+            );
           },
         ),
       ),
