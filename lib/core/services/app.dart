@@ -9,7 +9,7 @@ import '../widgets/admin_shell.dart';
 import '../../features/auth/domain/auth_status.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
-import '../../features/splash/pages/app.dart';
+import '../../features/splash/pages/splash_page.dart';
 import '../../features/splash/widgets/onboarding_screen.dart';
 
 class App extends StatefulWidget {
