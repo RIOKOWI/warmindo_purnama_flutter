@@ -27,7 +27,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.read<AuthProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
