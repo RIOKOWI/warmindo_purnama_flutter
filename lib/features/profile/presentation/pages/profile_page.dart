@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
+import 'package:warmindo_purnama_flutter/features/profile/data/models/profile_model.dart';
 import 'package:warmindo_purnama_flutter/features/profile/presentation/providers/profile_provider.dart';
+
+/// Fake data for skeleton loading
+final _fakeProfile = ProfileModel(
+  id: 1,
+  name: 'John Doe',
+  email: 'john@example.com',
+  phone: '081234567890',
+  role: 'customer',
+  createdAt: DateTime.now(),
+  updatedAt: DateTime.now(),
+);
 
 /// Profile page untuk menampilkan data user
 class ProfilePage extends StatefulWidget {
@@ -83,11 +96,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildBody(ProfileProvider provider) {
-    if (provider.state == ProfileState.loading &&
-        provider.profile == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     if (provider.state == ProfileState.error && provider.profile == null) {
       return Center(
         child: Column(
@@ -104,82 +112,88 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    final profile = provider.profile;
-    if (profile == null) {
+    final ProfileModel profile;
+    if (provider.state == ProfileState.loading) {
+      profile = _fakeProfile;
+    } else if (provider.profile == null) {
       return const Center(child: Text('Profile tidak ditemukan'));
+    } else {
+      profile = provider.profile!;
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // User Avatar & Name
-          CircleAvatar(
-            radius: 50,
-            child: Text(
-              profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
-              style: const TextStyle(fontSize: 40),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            profile.name,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-
-          const SizedBox(height: 32),
-
-          // User Info Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _buildInfoRow(Icons.email, 'Email', profile.email),
-                  const Divider(),
-                  _buildInfoRow(Icons.phone, 'Telepon', profile.phone ?? '-'),
-                ],
+    return Skeletonizer(
+      enabled: provider.state == ProfileState.loading,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // User Avatar & Name
+            CircleAvatar(
+              radius: 50,
+              child: Text(
+                profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+                style: const TextStyle(fontSize: 40),
               ),
             ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Action Buttons
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _showEditProfileSheet,
-              icon: const Icon(Icons.edit),
-              label: const Text('Edit Akun'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _showChangePasswordSheet,
-              icon: const Icon(Icons.lock),
-              label: const Text('Ubah Password'),
-            ),
-          ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton.icon(
-              onPressed: _logout,
-              icon: const Icon(Icons.logout, color: Colors.red),
-              label: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              profile.name,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 32),
+
+            // User Info Card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildInfoRow(Icons.email, 'Email', profile.email),
+                    const Divider(),
+                    _buildInfoRow(Icons.phone, 'Telepon', profile.phone?.isNotEmpty == true ? profile.phone! : '-'),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Action Buttons
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: provider.state == ProfileState.loading ? null : _showEditProfileSheet,
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit Akun'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: provider.state == ProfileState.loading ? null : _showChangePasswordSheet,
+                icon: const Icon(Icons.lock),
+                label: const Text('Ubah Password'),
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: _logout,
+                icon: const Icon(Icons.logout, color: Colors.red),
+                label: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
