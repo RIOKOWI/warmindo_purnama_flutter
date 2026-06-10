@@ -1,13 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
+import 'package:warmindo_purnama_flutter/features/cart/data/models/cart_item_model.dart';
 import 'package:warmindo_purnama_flutter/features/cart/presentation/providers/cart_provider.dart';
+
+/// Fake data for skeleton loading
+final _fakeCartItems = List.generate(
+  5,
+  (i) => CartItem(
+    cartItemId: i + 1,
+    quantity: i + 1,
+    product: CartProduct(
+      id: i + 1,
+      name: 'Produk ${i + 1}',
+      price: 25000,
+      imageUrl: '',
+      stock: 10,
+    ),
+  ),
+);
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -62,13 +80,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildBody(CartProvider cart) {
-    if (cart.isLoading) {
-      return Center(
-        child: CircularProgressIndicator(color: AppColors.accent),
-      );
-    }
-
-    if (cart.errorMessage != null) {
+    if (cart.errorMessage != null && cart.items.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -84,7 +96,9 @@ class _CartPageState extends State<CartPage> {
       );
     }
 
-    if (cart.items.isEmpty) {
+    final data = cart.isLoading && cart.items.isEmpty ? _fakeCartItems : cart.items;
+
+    if (data.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -108,12 +122,15 @@ class _CartPageState extends State<CartPage> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: cart.items.length,
-      itemBuilder: (_, i) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: _CartItemTile(item: cart.items[i]),
+    return Skeletonizer(
+      enabled: cart.isLoading && cart.items.isEmpty,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: data.length,
+        itemBuilder: (_, i) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _CartItemTile(item: data[i]),
+        ),
       ),
     );
   }

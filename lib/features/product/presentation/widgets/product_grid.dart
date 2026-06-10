@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/product_model.dart';

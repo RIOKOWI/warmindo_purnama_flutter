@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:warmindo_purnama_flutter/core/constants/payment_constants.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
@@ -8,6 +9,25 @@ import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/data/models/payment_list_model.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/providers/payment_list_provider.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/widgets/payment_list_tile.dart';
+
+/// Fake data untuk skeleton loader
+final _fakePayments = List.generate(7, (i) => PaymentListItemModel(
+  id: i,
+  orderId: i,
+  amount: 0,
+  fee: 0,
+  totalPayment: 0,
+  paymentNumber: 'PAY-$i',
+  paymentMethod: 'qris',
+  status: 'pending',
+  expiredAt: DateTime(2024, 1, 1),
+  order: PaymentOrderModel(
+    id: i,
+    invoiceNumber: 'INV-0000',
+    totalAmount: 0,
+    status: 'pending',
+  ),
+));
 
 class PaymentListPage extends StatefulWidget {
   const PaymentListPage({super.key});
@@ -51,7 +71,7 @@ class _PaymentListPageState extends State<PaymentListPage> {
       appBar: const NeoAppBar(title: 'PEMBAYARAN'),
       body: Column(
         children: [
-          if (provider.payments.isNotEmpty) _SummaryHeader(provider: provider),
+          if (provider.payments.isNotEmpty && !provider.isFetchingAll) _SummaryHeader(provider: provider),
           _FilterBar(
             activeFilter: provider.activeFilter,
             onFilter: provider.applyFilter,
@@ -63,8 +83,29 @@ class _PaymentListPageState extends State<PaymentListPage> {
   }
 
   Widget _buildBody(PaymentListProvider provider) {
-    if (provider.isLoading) {
-      return Center(child: CircularProgressIndicator(color: AppColors.accent));
+    // Tampilkan loading shimmer saat fetch semua halaman
+    if (provider.isFetchingAll) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Skeletonizer(
+              enabled: true,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.dark, width: 3),
+                ),
+                child: const Icon(Icons.payment, size: 48, color: AppColors.accent),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Memuat semua data...', style: AppTextStyles.body),
+          ],
+        ),
+      );
     }
 
     if (provider.errorMessage != null && provider.payments.isEmpty) {
@@ -95,57 +136,39 @@ class _PaymentListPageState extends State<PaymentListPage> {
       );
     }
 
-    if (provider.payments.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.dark, width: 3),
-              ),
-              child: Icon(Icons.payment,
-                  size: 48, color: AppColors.text.withValues(alpha: 0.5)),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              provider.activeFilter != null
-                  ? 'Tidak ada payment dengan filter tersebut'
-                  : 'Belum ada data pembayaran',
-              style: AppTextStyles.headline,
-            ),
-          ],
-        ),
-      );
-    }
+
+    // Tampilkan data atau skeleton berdasarkan state loading
+    final payments = provider.isLoading && provider.payments.isEmpty
+        ? _fakePayments
+        : provider.payments;
 
     return RefreshIndicator(
       onRefresh: () => provider.fetchPayments(refresh: true),
       color: AppColors.accent,
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16),
-        itemCount: provider.payments.length + (provider.isLoadingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == provider.payments.length) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
-            );
-          }
+      child: Skeletonizer(
+        enabled: provider.isLoading && provider.payments.isEmpty,
+        child: ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16),
+          itemCount: payments.length + (provider.isLoadingMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == payments.length) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+              );
+            }
 
-          final payment = provider.payments[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: PaymentListTile(
-              payment: payment,
-              onTap: () => _showPaymentDetail(context, payment),
-            ),
-          );
-        },
+            final payment = payments[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: PaymentListTile(
+                payment: payment,
+                onTap: () => _showPaymentDetail(context, payment),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

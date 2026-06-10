@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/data/models/table_model.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/providers/table_provider.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/widgets/table_status_card.dart';
+
+/// Fake data for skeleton loading
+final _fakeTables = List.generate(
+  12,
+  (i) => TableModel(
+    id: i + 1,
+    tableNumber: 'M${i + 1}',
+    status: 'available',
+  ),
+);
 
 class TableStatusPage extends StatefulWidget {
   const TableStatusPage({super.key});
@@ -37,10 +49,6 @@ class _TableStatusPageState extends State<TableStatusPage> {
   }
 
   Widget _buildBody(TableProvider provider) {
-    if (provider.isLoading && provider.tables.isEmpty) {
-      return Center(child: CircularProgressIndicator(color: AppColors.accent));
-    }
-
     if (provider.errorMessage != null && provider.tables.isEmpty) {
       return Center(
         child: Column(
@@ -68,15 +76,17 @@ class _TableStatusPageState extends State<TableStatusPage> {
       );
     }
 
+    final data = provider.isLoading && provider.tables.isEmpty ? _fakeTables : provider.tables;
+
     return RefreshIndicator(
       onRefresh: () => provider.fetchTables(),
       color: AppColors.accent,
       child: Column(
         children: [
           _SummaryBar(
-            available: provider.availableTables.length,
-            occupied: provider.occupiedTables.length,
-            total: provider.tables.length,
+            available: data.where((t) => t.isAvailable).length,
+            occupied: data.where((t) => t.isOccupied).length,
+            total: data.length,
           ),
           if (provider.errorMessage != null)
             Container(
@@ -87,22 +97,25 @@ class _TableStatusPageState extends State<TableStatusPage> {
                   style: AppTextStyles.caption.copyWith(color: AppColors.error)),
             ),
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                childAspectRatio: 0.85,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+            child: Skeletonizer(
+              enabled: provider.isLoading && provider.tables.isEmpty,
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  final table = data[index];
+                  return TableStatusCard(
+                    table: table,
+                    onTap: () => _onTapTable(context, table),
+                  );
+                },
               ),
-              itemCount: provider.tables.length,
-              itemBuilder: (context, index) {
-                final table = provider.tables[index];
-                return TableStatusCard(
-                  table: table,
-                  onTap: () => _onTapTable(context, table),
-                );
-              },
             ),
           ),
         ],

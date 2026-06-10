@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
-import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
-import 'package:warmindo_purnama_flutter/features/cart/presentation/providers/cart_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/providers/product_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/widgets/category_filter_widget.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/widgets/product_grid.dart';
