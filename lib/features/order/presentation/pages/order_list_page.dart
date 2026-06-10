@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/core/guards/auth_guard.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
@@ -9,8 +10,34 @@ import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
 import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_model.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_item_model.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/providers/order_provider.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/widgets/order_status_badge.dart';
+
+/// Fake data for skeleton loading
+final _fakeOrders = List.generate(
+  7,
+  (i) => OrderModel(
+    id: i + 1,
+    invoiceNumber: 'INV-2024-${(i + 1).toString().padLeft(5, '0')}',
+    userId: 1,
+    orderTypeId: 1,
+    subtotal: 50000,
+    totalAmount: 55000,
+    status: 'pending',
+    orderItems: [
+      const OrderItemModel(
+        id: 1,
+        orderId: 1,
+        productId: 1,
+        productName: 'Nasi Goreng',
+        quantity: 2,
+        productPrice: 25000,
+        subtotal: 50000,
+      ),
+    ],
+  ),
+);
 
 class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
@@ -67,10 +94,6 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   Widget _buildBody(OrderProvider provider) {
-    if (provider.isLoadingList && provider.orders.isEmpty) {
-      return Center(child: CircularProgressIndicator(color: AppColors.accent));
-    }
-
     if (provider.errorMessage != null && provider.orders.isEmpty) {
       return Center(
         child: Column(
@@ -87,7 +110,9 @@ class _OrderListPageState extends State<OrderListPage> {
       );
     }
 
-    if (provider.orders.isEmpty) {
+    final data = provider.isLoadingList && provider.orders.isEmpty ? _fakeOrders : provider.orders;
+
+    if (data.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -111,24 +136,29 @@ class _OrderListPageState extends State<OrderListPage> {
       );
     }
 
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: provider.orders.length + (provider.hasNextPage ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == provider.orders.length) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
-          );
-        }
+    final itemCount = data.length + (provider.hasNextPage ? 1 : 0);
 
-        final order = provider.orders[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _OrderListTile(order: order),
-        );
-      },
+    return Skeletonizer(
+      enabled: provider.isLoadingList && provider.orders.isEmpty,
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        itemCount: itemCount,
+        itemBuilder: (context, index) {
+          if (index == data.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+            );
+          }
+
+          final order = data[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _OrderListTile(order: order),
+          );
+        },
+      ),
     );
   }
 }
