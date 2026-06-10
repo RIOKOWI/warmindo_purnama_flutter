@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/category_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
@@ -77,7 +78,7 @@ class _AdminShellState extends State<AdminShell> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_navItems[_currentIndex].label),
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,
       ),
       drawer: Drawer(
@@ -86,7 +87,7 @@ class _AdminShellState extends State<AdminShell> {
           children: [
             DrawerHeader(
               decoration: const BoxDecoration(
-                color: Colors.deepOrange,
+                color: AppColors.accent,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +99,7 @@ class _AdminShellState extends State<AdminShell> {
                     child: Icon(
                       Icons.person,
                       size: 40,
-                      color: Colors.deepOrange,
+                      color: AppColors.accent,
                     ),
                   ),
                   const SizedBox(height: 12),
