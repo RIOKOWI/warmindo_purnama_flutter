@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/providers/product_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
 import '../providers/category_admin_provider.dart';
 import '../widgets/category_form_dialog.dart';
+
+/// Fake data for skeleton loading
+final _fakeCategories = List.generate(
+  7,
+  (i) => CategoryModel(id: i, name: 'Kategori ${i + 1}'),
+);
 
 /// Halaman management kategori untuk admin
 class CategoryManagePage extends StatefulWidget {
@@ -146,12 +153,6 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.deepOrange),
-      );
-    }
-
     if (_error != null) {
       return Center(
         child: Column(
@@ -178,7 +179,9 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
       );
     }
 
-    if (_categories.isEmpty) {
+    final data = _isLoading && _categories.isEmpty ? _fakeCategories : _categories;
+
+    if (data.isEmpty) {
       return const Center(
         child: Text('Belum ada kategori'),
       );
@@ -187,33 +190,36 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
     return RefreshIndicator(
       onRefresh: _loadCategories,
       color: Colors.deepOrange,
-      child: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 80),
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          return ListTile(
-            title: Text(
-              category.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  color: Colors.blue,
-                  onPressed: () => _openForm(context, category),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  color: Colors.red,
-                  onPressed: () => _confirmDelete(context, category),
-                ),
-              ],
-            ),
-          );
-        },
+      child: Skeletonizer(
+        enabled: _isLoading && _categories.isEmpty,
+        child: ListView.builder(
+          padding: const EdgeInsets.only(bottom: 80),
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            final category = data[index];
+            return ListTile(
+              title: Text(
+                category.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    color: Colors.blue,
+                    onPressed: () => _openForm(context, category),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    color: Colors.red,
+                    onPressed: () => _confirmDelete(context, category),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

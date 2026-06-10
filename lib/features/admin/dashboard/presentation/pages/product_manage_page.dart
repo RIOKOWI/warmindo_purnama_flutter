@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
@@ -12,6 +13,20 @@ import 'package:warmindo_purnama_flutter/features/product/data/models/product_mo
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/providers/product_admin_provider.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/widgets/product_form_sheet.dart';
+
+/// Fake data for skeleton loading
+final _fakeProducts = List.generate(
+  7,
+  (i) => ProductModel(
+    id: i,
+    name: 'Produk ${i + 1}',
+    description: 'Deskripsi produk',
+    price: 25000,
+    stock: 10,
+    imageUrl: '',
+    category: const CategoryModel(id: 1, name: 'Makanan'),
+  ),
+);
 
 class ProductManagePage extends StatefulWidget {
   const ProductManagePage({super.key});
@@ -169,8 +184,6 @@ class _ProductManagePageState extends State<ProductManagePage> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) return Center(child: CircularProgressIndicator(color: AppColors.accent));
-
     if (_error != null) return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -192,7 +205,9 @@ class _ProductManagePageState extends State<ProductManagePage> {
       ),
     );
 
-    if (_products.isEmpty) return Center(
+    final data = _isLoading && _products.isEmpty ? _fakeProducts : _products;
+
+    if (data.isEmpty) return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -214,16 +229,19 @@ class _ProductManagePageState extends State<ProductManagePage> {
     return RefreshIndicator(
       onRefresh: _loadData,
       color: AppColors.accent,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _products.length,
-        itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _ProductAdminTile(
-            product: _products[index],
-            onEdit: () => _openForm(context, _products[index]),
-            onDelete: () => _confirmDelete(context, _products[index]),
-            formatPrice: _formatPrice,
+      child: Skeletonizer(
+        enabled: _isLoading && _products.isEmpty,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: data.length,
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _ProductAdminTile(
+              product: data[index],
+              onEdit: () => _openForm(context, data[index]),
+              onDelete: () => _confirmDelete(context, data[index]),
+              formatPrice: _formatPrice,
+            ),
           ),
         ),
       ),
