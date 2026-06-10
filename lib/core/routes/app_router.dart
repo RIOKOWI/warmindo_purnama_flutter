@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:warmindo_purnama_flutter/core/guards/auth_guard.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import 'package:warmindo_purnama_flutter/core/services/secure_storage.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/admin_shell.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/customer_shell.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/kasir_shell.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/register_page.dart';
 import 'package:warmindo_purnama_flutter/features/cart/presentation/pages/cart_page.dart';
@@ -61,6 +64,11 @@ class AppRouter {
   static const String categoryManage = '/admin/categories';
   static const String userManage = '/admin/users';
   static const String profile = '/profile';
+
+  // Shell routes per role
+  static const String adminShell = '/admin';
+  static const String kasirShell = '/kasir';
+  static const String customerShell = '/customer';
 
   /// Route generator function
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -162,6 +170,21 @@ class AppRouter {
       case profile:
         return _buildRoute(
           AuthGuard(child: const ProfilePage()),
+          settings,
+        );
+      case adminShell:
+        return _buildRoute(
+          RoleGuard(allowedRoles: const ['admin'], child: const AdminShell()),
+          settings,
+        );
+      case kasirShell:
+        return _buildRoute(
+          RoleGuard(allowedRoles: const ['kasir'], child: const KasirShell()),
+          settings,
+        );
+      case customerShell:
+        return _buildRoute(
+          AuthGuard(child: const CustomerShell()),
           settings,
         );
       case dashboard:
