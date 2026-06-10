@@ -55,7 +55,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              _buildSkipHint(),
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
@@ -76,29 +75,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildSkipHint() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (_currentPage < _screens.length - 1)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.dark, width: 2),
-              ),
-              child: Text(
-                'Tap to continue',
-                style: AppTextStyles.caption,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPage(OnboardingData data) {
     return Padding(
@@ -152,7 +128,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          _buildPageIndicator(),
           const SizedBox(height: 24),
           if (_currentPage == _screens.length - 1)
             NeoButton(
@@ -163,26 +138,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           else
             const SizedBox(height: 56),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPageIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        _screens.length,
-        (index) => AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 6),
-          width: _currentPage == index ? 32 : 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: _currentPage == index ? AppColors.accent : AppColors.card,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: AppColors.dark, width: 2),
-          ),
-        ),
       ),
     );
   }
