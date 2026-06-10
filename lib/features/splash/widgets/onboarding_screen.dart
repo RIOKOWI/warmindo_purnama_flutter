@@ -52,23 +52,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       onTap: _nextPage,
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() => _currentPage = index);
-                  },
-                  itemCount: _screens.length,
-                  itemBuilder: (context, index) {
-                    return _buildPage(_screens[index]);
-                  },
+        body: Center(
+          child: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() => _currentPage = index);
+                    },
+                    itemCount: _screens.length,
+                    itemBuilder: (context, index) {
+                      return _buildPage(_screens[index]);
+                    },
+                  ),
                 ),
-              ),
-              _buildBottomControls(),
-            ],
+                _buildBottomControls(),
+              ],
+            ),
           ),
         ),
       ),
