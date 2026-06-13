@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import '../models/payment_list_model.dart';
 
@@ -33,14 +33,10 @@ class PaymentListDataSource {
       _log.d('[PaymentListDataSource] Payments fetched successfully');
 
       return PaymentListModel.fromJson(response.data as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[PaymentListDataSource] Failed to fetch payments',
           error: e, stackTrace: st);
-      final message = e.response?.data['message'] as String?;
-      throw Exception(message ?? 'Gagal memuat data pembayaran');
-    } catch (e, st) {
-      _log.e('[PaymentListDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 }
