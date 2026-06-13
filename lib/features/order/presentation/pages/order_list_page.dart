@@ -9,6 +9,7 @@ import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
+import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_model.dart';
 import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_item_model.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/providers/order_provider.dart';
@@ -160,6 +161,27 @@ class _OrderListTile extends StatelessWidget {
 
   final OrderModel order;
 
+  bool _canPrint(BuildContext context) {
+    final role = context.read<AuthProvider>().role;
+    return role == 'kasir' || role == 'admin';
+  }
+
+  Future<void> _printOrder(BuildContext context) async {
+    final cashierName = context.read<AuthProvider>().name ?? 'Kasir';
+    final provider = context.read<OrderProvider>();
+
+    final success = await provider.printOrderReceipt(order, cashierName, context);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success ? 'Struk berhasil dicetak' : 'Gagal mencetak struk'),
+          backgroundColor: success ? AppColors.success : AppColors.error,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat('#,###');
@@ -205,6 +227,22 @@ class _OrderListTile extends StatelessWidget {
               ],
             ),
           ),
+          if (_canPrint(context)) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _printOrder(context),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.success, width: 2),
+                ),
+                child: const Icon(Icons.print, color: AppColors.success, size: 20),
+              ),
+            ),
+          ],
+          const SizedBox(width: 4),
           const Icon(Icons.chevron_right, color: AppColors.text),
         ],
       ),
