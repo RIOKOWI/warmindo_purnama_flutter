@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import '../models/table_model.dart';
 
@@ -24,12 +24,9 @@ class TableRemoteDataSource {
       _log.d('[TableRemoteDataSource] Fetched ${list.length} tables');
 
       return list.map((e) => TableModel.fromJson(e as Map<String, dynamic>)).toList();
-    } on DioException catch (e, st) {
-      _log.e('[TableRemoteDataSource] Failed to fetch tables', error: e, stackTrace: st);
-      throw Exception(e.response?.data['message'] ?? 'Gagal mengambil meja');
     } catch (e, st) {
-      _log.e('[TableRemoteDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      _log.e('[TableRemoteDataSource] Failed to fetch tables', error: e, stackTrace: st);
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -52,12 +49,9 @@ class TableRemoteDataSource {
       _log.d('[TableRemoteDataSource] Table $tableId updated to $status');
 
       return TableModel.fromJson(tableData);
-    } on DioException catch (e, st) {
-      _log.e('[TableRemoteDataSource] Failed to update table $tableId', error: e, stackTrace: st);
-      throw Exception(e.response?.data['message'] ?? 'Gagal update status meja');
     } catch (e, st) {
-      _log.e('[TableRemoteDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      _log.e('[TableRemoteDataSource] Failed to update table $tableId', error: e, stackTrace: st);
+      throw ErrorHandler.handle(e);
     }
   }
 }
