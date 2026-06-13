@@ -4,13 +4,12 @@ import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/category_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/table_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/payment_list_page.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/table_status_page.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
-import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
-import 'package:warmindo_purnama_flutter/features/cart/presentation/pages/cart_page.dart';
 import 'package:warmindo_purnama_flutter/features/profile/presentation/pages/profile_page.dart';
 
 class AdminShell extends StatefulWidget {
@@ -24,22 +23,18 @@ class _AdminShellState extends State<AdminShell> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    HomePage(),
-    CartPage(),
     OrderListPage(),
     PaymentListPage(),
-    TableStatusPage(),
+    TableManagePage(),
     ProductManagePage(),
     CategoryManagePage(),
     UserManagePage(),
   ];
 
   final List<NavItemData> _navItems = const [
-    NavItemData(icon: Icons.restaurant_menu, label: 'Menu'),
-    NavItemData(icon: Icons.shopping_cart, label: 'Cart'),
     NavItemData(icon: Icons.receipt_long, label: 'Order'),
     NavItemData(icon: Icons.payment, label: 'Bayar'),
-    NavItemData(icon: Icons.table_restaurant, label: 'Meja'),
+    NavItemData(icon: Icons.settings, label: 'Kelola Meja'),
     NavItemData(icon: Icons.fastfood, label: 'Produk'),
     NavItemData(icon: Icons.category, label: 'Kategori'),
     NavItemData(icon: Icons.people, label: 'User'),
@@ -122,14 +117,12 @@ class _AdminShellState extends State<AdminShell> {
               ),
             ),
             // Navigation Items
-            _buildNavItem(0, Icons.restaurant_menu, 'Menu'),
-            _buildNavItem(1, Icons.shopping_cart, 'Cart'),
-            _buildNavItem(2, Icons.receipt_long, 'Order'),
-            _buildNavItem(3, Icons.payment, 'Bayar'),
-            _buildNavItem(4, Icons.table_restaurant, 'Meja'),
-            _buildNavItem(5, Icons.fastfood, 'Produk'),
-            _buildNavItem(6, Icons.category, 'Kategori'),
-            _buildNavItem(7, Icons.people, 'User'),
+            _buildNavItem(0, Icons.receipt_long, 'Order'),
+            _buildNavItem(1, Icons.payment, 'Bayar'),
+            _buildNavItem(3, Icons.settings, 'Kelola Meja'),
+            _buildNavItem(4, Icons.fastfood, 'Produk'),
+            _buildNavItem(5, Icons.category, 'Kategori'),
+            _buildNavItem(6, Icons.people, 'User'),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.account_circle),
