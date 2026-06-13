@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../domain/repositories/product_admin_repository.dart';
 import '../../data/models/product_request_model.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/product_model.dart';
@@ -34,7 +35,11 @@ class ProductAdminProvider extends ChangeNotifier {
       _log.i('[ProductAdminProvider] Product created successfully: ${result.id}');
       return result;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[ProductAdminProvider] Failed to create product',
           error: e, stackTrace: st);
       return null;
@@ -56,7 +61,11 @@ class ProductAdminProvider extends ChangeNotifier {
       _log.i('[ProductAdminProvider] Product updated successfully: ${result.id}');
       return result;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[ProductAdminProvider] Failed to update product',
           error: e, stackTrace: st);
       return null;
@@ -78,7 +87,11 @@ class ProductAdminProvider extends ChangeNotifier {
       _log.i('[ProductAdminProvider] Product deleted successfully: $id');
       return true;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[ProductAdminProvider] Failed to delete product',
           error: e, stackTrace: st);
       return false;
