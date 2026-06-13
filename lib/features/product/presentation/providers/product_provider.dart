@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/product_model.dart';
 import '../../domain/repositories/product_repository.dart';
@@ -45,12 +45,13 @@ class ProductProvider extends ChangeNotifier {
       _products = results[1] as List<ProductModel>;
 
       _log.i('[ProductProvider] Loaded ${_categories.length} categories and ${_products.length} products');
-    } on DioException catch (e) {
-      _errorMessage = e.response?.data['message'] ?? 'Gagal memuat data';
-      _log.e('[ProductProvider] DioException', error: e);
     } catch (e, st) {
-      _errorMessage = 'Gagal memuat data';
-      _log.e('[ProductProvider] Unknown error', error: e, stackTrace: st);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
+      _log.e('[ProductProvider] Error loading data', error: e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
