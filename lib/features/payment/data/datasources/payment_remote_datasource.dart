@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/errors/error_handler.dart';
 import '../../../../core/services/dio_client.dart';
 import '../models/payment_model.dart';
 import '../models/create_payment_request_model.dart';
@@ -37,9 +37,9 @@ class PaymentRemoteDataSource {
       );
       _log.d('[PaymentRemoteDataSource] Payment created: ${payment.id}');
       return payment;
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[PaymentRemoteDataSource] Failed to create payment', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -54,9 +54,9 @@ class PaymentRemoteDataSource {
       );
       _log.d('[PaymentRemoteDataSource] Payment details fetched');
       return payment;
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[PaymentRemoteDataSource] Failed to fetch payment details', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 }
