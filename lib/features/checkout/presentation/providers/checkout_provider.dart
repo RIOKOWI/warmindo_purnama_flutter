@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../data/models/order_type_model.dart';
 import '../../data/models/table_model.dart';
 import '../../data/models/order_model.dart';
@@ -79,7 +80,11 @@ class CheckoutProvider extends ChangeNotifier {
       _log.i('[CheckoutProvider] Loaded ${_orderTypes.length} order types, ${_availableTables.length} tables');
     } catch (e, st) {
       _log.e('[CheckoutProvider] Failed to initialize', error: e, stackTrace: st);
-      _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -141,7 +146,11 @@ class CheckoutProvider extends ChangeNotifier {
       return true;
     } catch (e, st) {
       _log.e('[CheckoutProvider] Failed to submit order', error: e, stackTrace: st);
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       return false;
     } finally {
       _isSubmitting = false;
