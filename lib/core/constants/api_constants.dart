@@ -58,4 +58,8 @@ class ApiConstants {
   // Table endpoints
   static const String tables = 'tables';
   static String tableStatus(int tableId) => 'tables/$tableId/status';
+
+  // Admin Table endpoints
+  static const String adminTables = 'admin/tables';
+  static String adminTableDetail(int id) => 'admin/tables/$id';
 }
