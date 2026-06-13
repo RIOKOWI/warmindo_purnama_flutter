@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../domain/repositories/user_admin_repository.dart';
 import '../../data/models/user_admin_model.dart';
 import '../../data/models/user_request_model.dart';
@@ -65,7 +66,11 @@ class UserAdminProvider extends ChangeNotifier {
       _hasNextPage = result.hasNextPage;
       _log.i('[UserAdminProvider] Users loaded: ${_users.length}, hasNextPage: $_hasNextPage');
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[UserAdminProvider] Failed to fetch users',
           error: e, stackTrace: st);
     } finally {
@@ -91,7 +96,11 @@ class UserAdminProvider extends ChangeNotifier {
       _log.i('[UserAdminProvider] More users loaded: ${result.users.length}, hasNextPage: $_hasNextPage');
     } catch (e, st) {
       _currentPage--; // Rollback
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[UserAdminProvider] Failed to load more users',
           error: e, stackTrace: st);
     } finally {
@@ -113,7 +122,11 @@ class UserAdminProvider extends ChangeNotifier {
       _log.i('[UserAdminProvider] User created successfully: ${result.id}');
       return result;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[UserAdminProvider] Failed to create user',
           error: e, stackTrace: st);
       return null;
@@ -140,7 +153,11 @@ class UserAdminProvider extends ChangeNotifier {
       _log.i('[UserAdminProvider] User updated successfully: $userId');
       return result;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[UserAdminProvider] Failed to update user',
           error: e, stackTrace: st);
       return null;
@@ -170,7 +187,11 @@ class UserAdminProvider extends ChangeNotifier {
       _log.i('[UserAdminProvider] User deleted successfully: $userId');
       return true;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[UserAdminProvider] Failed to delete user',
           error: e, stackTrace: st);
       return false;
@@ -197,7 +218,11 @@ class UserAdminProvider extends ChangeNotifier {
       _log.i('[UserAdminProvider] User restored successfully: $userId');
       return true;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[UserAdminProvider] Failed to restore user',
           error: e, stackTrace: st);
       return false;
