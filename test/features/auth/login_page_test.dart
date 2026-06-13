@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_text_field.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/features/auth/domain/auth_status.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
@@ -16,6 +18,7 @@ void main() {
     when(mockAuthProvider.isLoading).thenReturn(false);
     when(mockAuthProvider.status).thenReturn(AuthStatus.unauthenticated);
     when(mockAuthProvider.errorMessage).thenReturn(null);
+    when(mockAuthProvider.role).thenReturn('customer');
   });
 
   Widget buildWidget() => ChangeNotifierProvider<AuthProvider>.value(
@@ -24,19 +27,19 @@ void main() {
       );
 
   group('LoginPage - UI elements', () {
-    testWidgets('tampil TextFormField email dan password', (tester) async {
+    testWidgets('tampil NeoTextField email dan password', (tester) async {
       await tester.pumpWidget(buildWidget());
 
       // Email field
-      expect(find.byType(TextFormField), findsNWidgets(2));
-      expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
+      expect(find.byType(NeoTextField), findsNWidgets(2));
+      expect(find.widgetWithText(NeoTextField, 'Email'), findsOneWidget);
+      expect(find.widgetWithText(NeoTextField, 'Password'), findsOneWidget);
     });
 
-    testWidgets('tampil ElevatedButton "Login"', (tester) async {
+    testWidgets('tampil NeoButton "MASUK"', (tester) async {
       await tester.pumpWidget(buildWidget());
 
-      expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
+      expect(find.widgetWithText(NeoButton, 'MASUK'), findsOneWidget);
     });
 
     testWidgets('tampil TextButton "Belum punya akun? Daftar"', (tester) async {
@@ -51,7 +54,7 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Tap tombol login tanpa isi apapun
-      await tester.tap(find.text('Login'));
+      await tester.tap(find.text('MASUK'));
       await tester.pump();
 
       // Validasi email dan password error
@@ -63,8 +66,8 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Masukkan password saja
-      await tester.enterText(find.byType(TextFormField).last, 'Password123!');
-      await tester.tap(find.text('Login'));
+      await tester.enterText(find.byType(TextField).last, 'Password123!');
+      await tester.tap(find.text('MASUK'));
       await tester.pump();
 
       expect(find.text('Email tidak boleh kosong'), findsOneWidget);
@@ -74,8 +77,8 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Masukkan email saja
-      await tester.enterText(find.byType(TextFormField).first, 'test@email.com');
-      await tester.tap(find.text('Login'));
+      await tester.enterText(find.byType(TextField).first, 'test@email.com');
+      await tester.tap(find.text('MASUK'));
       await tester.pump();
 
       expect(find.text('Password tidak boleh kosong'), findsOneWidget);
@@ -92,9 +95,9 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Enter email and password
-      await tester.enterText(find.byType(TextFormField).first, 'test@email.com');
-      await tester.enterText(find.byType(TextFormField).last, 'Test123@');
-      await tester.tap(find.text('Login'));
+      await tester.enterText(find.byType(TextField).first, 'test@email.com');
+      await tester.enterText(find.byType(TextField).last, 'Test123@');
+      await tester.tap(find.text('MASUK'));
       await tester.pump();
 
       verify(mockAuthProvider.login(
@@ -105,13 +108,13 @@ void main() {
   });
 
   group('LoginPage - loading state', () {
-    testWidgets('tombol Login disable saat isLoading true', (tester) async {
+    testWidgets('tombol NeoButton disable saat isLoading true', (tester) async {
       when(mockAuthProvider.isLoading).thenReturn(true);
 
       await tester.pumpWidget(buildWidget());
 
-      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-      expect(button.onPressed, isNull); // null = disabled
+      final button = tester.widget<NeoButton>(find.byType(NeoButton));
+      expect(button.isLoading, isTrue);
     });
 
     testWidgets('CircularProgressIndicator muncul di dalam tombol saat isLoading true', (tester) async {
@@ -134,9 +137,9 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Enter valid email and password
-      await tester.enterText(find.byType(TextFormField).first, 'test@email.com');
-      await tester.enterText(find.byType(TextFormField).last, 'Test123@');
-      await tester.tap(find.text('Login'));
+      await tester.enterText(find.byType(TextField).first, 'test@email.com');
+      await tester.enterText(find.byType(TextField).last, 'Test123@');
+      await tester.tap(find.text('MASUK'));
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackBar), findsOneWidget);
