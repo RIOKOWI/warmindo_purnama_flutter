@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../../checkout/data/models/order_model.dart';
 import '../../../../core/services/dio_client.dart';
 import '../../../../core/services/secure_storage.dart';
@@ -68,7 +69,11 @@ class OrderProvider extends ChangeNotifier {
       _log.i('[OrderProvider] Fetched ${result.orders.length} orders, hasNextPage: $_hasNextPage');
     } catch (e, st) {
       _log.e('[OrderProvider] Failed to fetch orders', error: e, stackTrace: st);
-      _errorMessage = 'Gagal memuat pesanan';
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
     } finally {
       _isLoadingList = false;
       notifyListeners();
@@ -96,7 +101,11 @@ class OrderProvider extends ChangeNotifier {
       _log.i('[OrderProvider] Order detail fetched: ${_selectedOrder?.invoiceNumber}');
     } catch (e, st) {
       _log.e('[OrderProvider] Failed to fetch order detail: $orderId', error: e, stackTrace: st);
-      _errorMessage = 'Gagal memuat detail pesanan';
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
     } finally {
       _isLoadingDetail = false;
       notifyListeners();
@@ -128,7 +137,11 @@ class OrderProvider extends ChangeNotifier {
       return true;
     } catch (e, st) {
       _log.e('[OrderProvider] Failed to cancel order: $orderId', error: e, stackTrace: st);
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       return false;
     } finally {
       _isCancelling = false;
@@ -168,7 +181,11 @@ class OrderProvider extends ChangeNotifier {
       return payment;
     } catch (e, st) {
       _log.e('[OrderProvider] Gagal ambil payment detail', error: e, stackTrace: st);
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       return null;
     } finally {
       _isLoadingPayment = false;
