@@ -20,7 +20,7 @@ class OnboardingContents {
   static const List<OnboardingData> screens = [
     OnboardingData(
       icon: Icons.restaurant_menu,
-      title: 'Selamat Datang di Warmindo',
+      title: 'Selamat Datang di Warmindo Purnama',
       description:
           'Nikmati berbagai menu lezat dengan harga terjangkau. Pesan makanan favorit Anda dengan mudah.',
     ),
@@ -32,9 +32,9 @@ class OnboardingContents {
     ),
     OnboardingData(
       icon: Icons.delivery_dining,
-      title: 'Pengiriman Cepat',
+      title: 'Pembayaran Lengkap',
       description:
-          'Pesanan Anda akan segera diproses dan siap diantar ke meja Anda.',
+          'Terima pembayaran lebih mudah dengan berbagai pilihan metode yang tersedia dalam satu aplikasi.',
     ),
   ];
 }
