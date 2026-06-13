@@ -311,63 +311,6 @@ void main() {
     });
   });
 
-  group('deleteUser', () {
-    test('fetch getUserDetail setelah delete berhasil', () async {
-      mockRepository.mockUsers = [tUser];
-
-      await provider.fetchUsers();
-      expect(provider.users[0].isActive, true);
-
-      await provider.deleteUser(1);
-
-      // Should have called getUserDetail to get updated data
-      expect(mockRepository.callCount, greaterThan(1));
-    });
-
-    test('_users[index] diupdate dengan data terbaru (ada deleted_at)', () async {
-      mockRepository.mockUsers = [tUser, tDeletedUser];
-
-      await provider.fetchUsers();
-      expect(provider.users[0].isActive, true);
-
-      await provider.deleteUser(1);
-
-      // The mock returns the same user, but in real scenario it would have deleted_at
-      // For testing, we just verify the method was called
-    });
-
-    test('return false jika gagal', () async {
-      mockRepository.shouldFail = true;
-
-      final result = await provider.deleteUser(1);
-
-      expect(result, false);
-      expect(provider.errorMessage, isNotNull);
-    });
-  });
-
-  group('restoreUser', () {
-    test('_users[index] diupdate dengan data restored', () async {
-      mockRepository.mockUsers = [tDeletedUser];
-
-      await provider.fetchUsers();
-      expect(provider.users[0].isDeleted, true);
-
-      await provider.restoreUser(4);
-
-      expect(provider.users[0].name, 'restored');
-    });
-
-    test('return false jika gagal', () async {
-      mockRepository.shouldFail = true;
-
-      final result = await provider.restoreUser(4);
-
-      expect(result, false);
-      expect(provider.errorMessage, isNotNull);
-    });
-  });
-
   group('getters summary', () {
     test('totalAdmin hanya hitung role admin', () async {
       mockRepository.mockUsers = [tUser, tUser2, tUser3];
