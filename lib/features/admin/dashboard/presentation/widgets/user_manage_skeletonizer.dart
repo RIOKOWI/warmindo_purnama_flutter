@@ -32,8 +32,6 @@ class UserManageSkeletonizer extends StatelessWidget {
             child: UserAdminTile(
               user: user,
               onEdit: () {},
-              onDelete: () {},
-              onRestore: () {},
             ),
           );
         },

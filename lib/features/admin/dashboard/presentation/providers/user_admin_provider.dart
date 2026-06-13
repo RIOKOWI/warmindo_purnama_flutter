@@ -18,7 +18,6 @@ class UserAdminProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isLoadingMore = false;
   bool _isSubmitting = false;
-  bool _isProcessing = false;
   String? _errorMessage;
   int _currentPage = 1;
   bool _hasNextPage = false;
@@ -28,7 +27,6 @@ class UserAdminProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
   bool get isSubmitting => _isSubmitting;
-  bool get isProcessing => _isProcessing;
   String? get errorMessage => _errorMessage;
   bool get hasNextPage => _hasNextPage;
 
@@ -163,71 +161,6 @@ class UserAdminProvider extends ChangeNotifier {
       return null;
     } finally {
       _isSubmitting = false;
-      notifyListeners();
-    }
-  }
-
-  /// Soft delete user
-  Future<bool> deleteUser(int userId) async {
-    _isProcessing = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      _log.i('[UserAdminProvider] Deleting user: $userId');
-      await _repository.deleteUser(userId);
-
-      // DELETE tidak return data, fetch detail untuk dapat deleted_at
-      final updated = await _repository.getUserDetail(userId);
-      final index = _users.indexWhere((u) => u.id == userId);
-      if (index != -1) {
-        _users[index] = updated;
-      }
-
-      _log.i('[UserAdminProvider] User deleted successfully: $userId');
-      return true;
-    } catch (e, st) {
-      if (e is AppException) {
-        _errorMessage = e.message;
-      } else {
-        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-      }
-      _log.e('[UserAdminProvider] Failed to delete user',
-          error: e, stackTrace: st);
-      return false;
-    } finally {
-      _isProcessing = false;
-      notifyListeners();
-    }
-  }
-
-  /// Restore soft deleted user
-  Future<bool> restoreUser(int userId) async {
-    _isProcessing = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      _log.i('[UserAdminProvider] Restoring user: $userId');
-      final restored = await _repository.restoreUser(userId);
-      final index = _users.indexWhere((u) => u.id == userId);
-      if (index != -1) {
-        _users[index] = restored;
-      }
-
-      _log.i('[UserAdminProvider] User restored successfully: $userId');
-      return true;
-    } catch (e, st) {
-      if (e is AppException) {
-        _errorMessage = e.message;
-      } else {
-        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-      }
-      _log.e('[UserAdminProvider] Failed to restore user',
-          error: e, stackTrace: st);
-      return false;
-    } finally {
-      _isProcessing = false;
       notifyListeners();
     }
   }
