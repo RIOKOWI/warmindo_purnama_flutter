@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/product_model.dart';
 import '../models/product_request_model.dart';
@@ -37,17 +38,10 @@ class ProductAdminDataSource {
       _log.d('[ProductAdminDataSource] Response data: ${response.data}');
 
       return ProductModel.fromJson(response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[ProductAdminDataSource] DioException saat create product',
           error: e, stackTrace: st);
-      _log.e('[ProductAdminDataSource] Response status: ${e.response?.statusCode}');
-      _log.e('[ProductAdminDataSource] Response body: ${e.response?.data}');
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal membuat produk');
-    } catch (e, st) {
-      _log.e('[ProductAdminDataSource] Unknown error saat create product',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -77,17 +71,10 @@ class ProductAdminDataSource {
       _log.d('[ProductAdminDataSource] Response data: ${response.data}');
 
       return ProductModel.fromJson(response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[ProductAdminDataSource] DioException saat update product: $id',
           error: e, stackTrace: st);
-      _log.e('[ProductAdminDataSource] Response status: ${e.response?.statusCode}');
-      _log.e('[ProductAdminDataSource] Response body: ${e.response?.data}');
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal mengupdate produk');
-    } catch (e, st) {
-      _log.e('[ProductAdminDataSource] Unknown error saat update product: $id',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -99,14 +86,10 @@ class ProductAdminDataSource {
       await _dioClient.dio.delete('${ApiConstants.adminProducts}/$id');
 
       _log.d('[ProductAdminDataSource] Product deleted successfully: $id');
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[ProductAdminDataSource] Failed to delete product: $id',
           error: e, stackTrace: st);
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal menghapus produk');
-    } catch (e, st) {
-      _log.e('[ProductAdminDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
