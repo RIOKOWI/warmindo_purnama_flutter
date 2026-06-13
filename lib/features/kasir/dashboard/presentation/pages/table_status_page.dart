@@ -100,12 +100,12 @@ class _TableStatusPageState extends State<TableStatusPage> {
             child: Skeletonizer(
               enabled: provider.isLoading && provider.tables.isEmpty,
               child: GridView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
-                  childAspectRatio: 0.85,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
                 ),
                 itemCount: data.length,
                 itemBuilder: (context, index) {
@@ -193,15 +193,26 @@ class _SummaryBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          _SummaryChip(label: 'Tersedia', count: available, color: AppColors.success),
-          const SizedBox(width: 8),
-          _SummaryChip(label: 'Terisi', count: occupied, color: AppColors.error),
-          const Spacer(),
-          Text('Total: $total meja', style: AppTextStyles.body),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _SummaryChip(label: 'Tersedia', count: available, color: AppColors.success),
+            const SizedBox(width: 8),
+            _SummaryChip(label: 'Terisi', count: occupied, color: AppColors.error),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.dark, width: 2),
+              ),
+              child: Text('Total: $total', style: AppTextStyles.caption),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -217,16 +228,16 @@ class _SummaryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color, width: 2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('$count', style: AppTextStyles.title.copyWith(color: color)),
+          Text('$count', style: AppTextStyles.caption.copyWith(color: color, fontWeight: FontWeight.w700)),
           const SizedBox(width: 4),
           Text(label, style: AppTextStyles.caption.copyWith(color: color)),
         ],

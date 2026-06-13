@@ -65,147 +65,10 @@ class _UserManagePageState extends State<UserManagePage> {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, UserAdminModel user) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.dark, width: 3),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.error, width: 3),
-                ),
-                child: const Icon(Icons.warning, color: AppColors.error, size: 40),
-              ),
-              const SizedBox(height: 16),
-              Text('Nonaktifkan user?', style: AppTextStyles.headline),
-              const SizedBox(height: 8),
-              Text('${user.name} (${user.email}) akan dinonaktifkan.',
-                  style: AppTextStyles.body, textAlign: TextAlign.center),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: NeoButton(
-                      label: 'Batal',
-                      isOutlined: true,
-                      onPressed: () => Navigator.pop(context, false),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: NeoButton(
-                      label: 'Nonaktifkan',
-                      onPressed: () => Navigator.pop(context, true),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    if (confirmed == true && context.mounted) await _doDelete(context, user);
-  }
-
-  Future<void> _doDelete(BuildContext context, UserAdminModel user) async {
-    final provider = context.read<UserAdminProvider>();
-    final success = await provider.deleteUser(user.id);
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success ? 'User ${user.name} berhasil dinonaktifkan' : 'Gagal: ${provider.errorMessage}'),
-          backgroundColor: success ? AppColors.success : AppColors.error,
-        ),
-      );
-    }
-  }
-
-  Future<void> _confirmRestore(BuildContext context, UserAdminModel user) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.dark, width: 3),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.success, width: 3),
-                ),
-                child: const Icon(Icons.check_circle, color: AppColors.success, size: 40),
-              ),
-              const SizedBox(height: 16),
-              Text('Aktifkan kembali?', style: AppTextStyles.headline),
-              const SizedBox(height: 8),
-              Text('${user.name} akan dapat login kembali.',
-                  style: AppTextStyles.body, textAlign: TextAlign.center),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: NeoButton(
-                      label: 'Batal',
-                      isOutlined: true,
-                      onPressed: () => Navigator.pop(context, false),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: NeoButton(
-                      label: 'Aktifkan',
-                      onPressed: () => Navigator.pop(context, true),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    if (confirmed == true && context.mounted) await _doRestore(context, user);
-  }
-
-  Future<void> _doRestore(BuildContext context, UserAdminModel user) async {
-    final provider = context.read<UserAdminProvider>();
-    final success = await provider.restoreUser(user.id);
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success ? 'User ${user.name} berhasil diaktifkan' : 'Gagal: ${provider.errorMessage}'),
-          backgroundColor: success ? AppColors.success : AppColors.error,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: NeoAppBar(title: 'KELOLA USER'),
       body: Consumer<UserAdminProvider>(
         builder: (context, provider, _) {
@@ -276,26 +139,6 @@ class _UserManagePageState extends State<UserManagePage> {
       );
     }
 
-    if (provider.users.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.dark, width: 3),
-              ),
-              child: Icon(Icons.people, size: 48, color: AppColors.text.withValues(alpha: 0.5)),
-            ),
-            const SizedBox(height: 16),
-            Text('Belum ada user', style: AppTextStyles.headline),
-          ],
-        ),
-      );
-    }
 
     // Tampilkan data atau skeleton berdasarkan state loading
     final users = provider.isLoading && provider.users.isEmpty
@@ -325,8 +168,6 @@ class _UserManagePageState extends State<UserManagePage> {
               child: UserAdminTile(
                 user: user,
                 onEdit: () => _openForm(context, user),
-                onDelete: () => _confirmDelete(context, user),
-                onRestore: () => _confirmRestore(context, user),
               ),
             );
           },

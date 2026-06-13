@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/providers/product_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
 import '../providers/category_admin_provider.dart';
@@ -83,25 +87,55 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
   Future<void> _confirmDelete(BuildContext context, CategoryModel category) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus kategori?'),
-        content: Text(
-          '${category.name} akan dihapus. Produk yang menggunakan kategori ini mungkin terpengaruh.',
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.dark, width: 3),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.error, width: 3),
+                ),
+                child: const Icon(Icons.warning, color: AppColors.error, size: 40),
+              ),
+              const SizedBox(height: 16),
+              Text('Hapus kategori?', style: AppTextStyles.headline),
+              const SizedBox(height: 8),
+              Text(
+                '${category.name} akan dihapus. Produk yang menggunakan kategori ini mungkin terpengaruh.',
+                style: AppTextStyles.body,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Batal',
+                      isOutlined: true,
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: NeoButton(
+                      label: 'Hapus',
+                      onPressed: () => Navigator.pop(context, true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Hapus'),
-          ),
-        ],
+        ),
       ),
     );
 
@@ -122,7 +156,7 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
       scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Kategori berhasil dihapus'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
         ),
       );
     } else if (mounted) {
@@ -130,7 +164,7 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text(error ?? 'Gagal menghapus kategori'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -139,15 +173,20 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: NeoAppBar(
         title: 'KELOLA KATEGORI'
       ),
       body: _buildBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openForm(context, null),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        decoration: const BoxDecoration(
+          boxShadow: [BoxShadow(color: AppColors.dark, offset: Offset(5, 5), blurRadius: 0)],
+        ),
+        child: FloatingActionButton(
+          onPressed: () => _openForm(context, null),
+          backgroundColor: AppColors.accent,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
@@ -158,22 +197,23 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.error, width: 3),
+              ),
+              child: const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+            ),
             const SizedBox(height: 16),
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red.shade700),
+              style: AppTextStyles.body,
             ),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _loadCategories,
-              label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
-                foregroundColor: Colors.white,
-              ),
-            ),
+            NeoButtonSmall(label: 'Coba Lagi', icon: Icons.refresh, onPressed: _loadCategories),
           ],
         ),
       );
@@ -182,40 +222,75 @@ class _CategoryManagePageState extends State<CategoryManagePage> {
     final data = _isLoading && _categories.isEmpty ? _fakeCategories : _categories;
 
     if (data.isEmpty) {
-      return const Center(
-        child: Text('Belum ada kategori'),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.dark, width: 3),
+              ),
+              child: Icon(Icons.category, size: 48, color: AppColors.text.withValues(alpha: 0.5)),
+            ),
+            const SizedBox(height: 16),
+            Text('Belum ada kategori', style: AppTextStyles.headline),
+          ],
+        ),
       );
     }
 
     return RefreshIndicator(
       onRefresh: _loadCategories,
-      color: Colors.deepOrange,
+      color: AppColors.accent,
       child: Skeletonizer(
         enabled: _isLoading && _categories.isEmpty,
         child: ListView.builder(
-          padding: const EdgeInsets.only(bottom: 80),
+          padding: const EdgeInsets.all(16),
           itemCount: data.length,
           itemBuilder: (context, index) {
             final category = data[index];
-            return ListTile(
-              title: Text(
-                category.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    color: Colors.blue,
-                    onPressed: () => _openForm(context, category),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    color: Colors.red,
-                    onPressed: () => _confirmDelete(context, category),
-                  ),
-                ],
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: NeoCard(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        category.name,
+                        style: AppTextStyles.title,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => _openForm(context, category),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.info.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.info, width: 2),
+                        ),
+                        child: const Icon(Icons.edit, color: AppColors.info, size: 20),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => _confirmDelete(context, category),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.error, width: 2),
+                        ),
+                        child: const Icon(Icons.delete, color: AppColors.error, size: 20),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },

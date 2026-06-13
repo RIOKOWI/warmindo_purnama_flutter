@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
 import '../../data/models/table_model.dart';
 
 /// Widget card untuk menampilkan status meja
@@ -14,46 +17,39 @@ class TableStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = table.isAvailable ? AppColors.success : AppColors.error;
+
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        color: table.isAvailable ? Colors.green.shade50 : Colors.red.shade50,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+      child: NeoCard(
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon kursi
             Icon(
               table.isAvailable ? Icons.chair_outlined : Icons.chair,
-              size: 32,
-              color: table.isAvailable ? Colors.green : Colors.red,
-            ),
-            const SizedBox(height: 8),
-            // Nomor meja
-            Text(
-              table.tableNumber.replaceAll('MEJA ', ''),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              size: 28,
+              color: color,
             ),
             const SizedBox(height: 4),
-            // Badge status
+            Text(
+              table.tableNumber.replaceAll('MEJA ', ''),
+              style: AppTextStyles.title,
+            ),
+            const SizedBox(height: 2),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: (table.isAvailable ? Colors.green : Colors.red).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: color, width: 1.5),
               ),
               child: Text(
                 table.isAvailable ? 'Tersedia' : 'Terisi',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: table.isAvailable ? Colors.green : Colors.red,
+                style: AppTextStyles.caption.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10,
                 ),
               ),
             ),
