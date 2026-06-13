@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
 import '../models/category_request_model.dart';
@@ -24,14 +24,10 @@ class CategoryAdminDataSource {
 
       _log.d('[CategoryAdminDataSource] Category created successfully');
       return CategoryModel.fromJson(response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CategoryAdminDataSource] Failed to create category',
           error: e, stackTrace: st);
-      final message = e.response?.data['message'] as String?;
-      throw Exception(message ?? 'Gagal membuat kategori');
-    } catch (e, st) {
-      _log.e('[CategoryAdminDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -47,14 +43,10 @@ class CategoryAdminDataSource {
 
       _log.d('[CategoryAdminDataSource] Category updated successfully');
       return CategoryModel.fromJson(response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CategoryAdminDataSource] Failed to update category',
           error: e, stackTrace: st);
-      final message = e.response?.data['message'] as String?;
-      throw Exception(message ?? 'Gagal mengupdate kategori');
-    } catch (e, st) {
-      _log.e('[CategoryAdminDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -66,14 +58,10 @@ class CategoryAdminDataSource {
       await _dioClient.dio.delete('${ApiConstants.adminCategories}/$id');
 
       _log.d('[CategoryAdminDataSource] Category deleted successfully');
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CategoryAdminDataSource] Failed to delete category',
           error: e, stackTrace: st);
-      final message = e.response?.data['message'] as String?;
-      throw Exception(message ?? 'Gagal menghapus kategori');
-    } catch (e, st) {
-      _log.e('[CategoryAdminDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 }
