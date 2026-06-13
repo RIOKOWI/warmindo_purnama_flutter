@@ -1,5 +1,6 @@
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import '../models/profile_model.dart';
 import '../models/profile_request_model.dart';
@@ -21,7 +22,7 @@ class ProfileRemoteDataSource {
       return ProfileModel.fromJson(data['data']);
     } catch (e, st) {
       _log.e('[ProfileRemoteDataSource] Failed to get profile', error: e, stackTrace: st);
-      throw Exception('Gagal mengambil profile: $e');
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -38,7 +39,7 @@ class ProfileRemoteDataSource {
       return ProfileModel.fromJson(data['data']);
     } catch (e, st) {
       _log.e('[ProfileRemoteDataSource] Failed to update profile', error: e, stackTrace: st);
-      throw Exception('Gagal mengupdate profile: $e');
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -55,7 +56,7 @@ class ProfileRemoteDataSource {
       return ProfileModel.fromJson(data['data']);
     } catch (e, st) {
       _log.e('[ProfileRemoteDataSource] Failed to update password', error: e, stackTrace: st);
-      throw Exception('Gagal mengupdate password: $e');
+      throw ErrorHandler.handle(e);
     }
   }
 }
