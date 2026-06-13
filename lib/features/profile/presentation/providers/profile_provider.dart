@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/models/profile_request_model.dart';
 import '../../domain/repositories/profile_repository.dart';
@@ -36,7 +37,11 @@ class ProfileProvider extends ChangeNotifier {
       _log.i('[ProfileProvider] Profile loaded successfully');
     } catch (e) {
       _state = ProfileState.error;
-      _errorMessage = e.toString();
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[ProfileProvider] Failed to load profile', error: e);
     }
     notifyListeners();
@@ -66,7 +71,11 @@ class ProfileProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _state = ProfileState.error;
-      _errorMessage = e.toString();
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[ProfileProvider] Failed to update profile', error: e);
       notifyListeners();
       return false;
@@ -97,7 +106,11 @@ class ProfileProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _state = ProfileState.error;
-      _errorMessage = e.toString();
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[ProfileProvider] Failed to update password', error: e);
       notifyListeners();
       return false;
