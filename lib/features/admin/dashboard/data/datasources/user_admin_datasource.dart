@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import '../models/user_admin_model.dart';
 import '../models/user_list_model.dart';
@@ -25,15 +25,10 @@ class UserAdminDataSource {
 
       _log.i('[UserAdminDataSource] Users fetched successfully');
       return UserListModel.fromJson(response.data as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[UserAdminDataSource] DioException saat fetch users',
           error: e, stackTrace: st);
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal mengambil data user');
-    } catch (e, st) {
-      _log.e('[UserAdminDataSource] Unknown error saat fetch users',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -49,15 +44,10 @@ class UserAdminDataSource {
       _log.i('[UserAdminDataSource] User detail fetched: $userId');
       return UserAdminModel.fromJson(
           response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[UserAdminDataSource] DioException saat fetch user detail: $userId',
           error: e, stackTrace: st);
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal mengambil detail user');
-    } catch (e, st) {
-      _log.e('[UserAdminDataSource] Unknown error saat fetch user detail: $userId',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -74,15 +64,10 @@ class UserAdminDataSource {
       _log.i('[UserAdminDataSource] User created successfully');
       return UserAdminModel.fromJson(
           response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[UserAdminDataSource] DioException saat create user',
           error: e, stackTrace: st);
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal membuat user');
-    } catch (e, st) {
-      _log.e('[UserAdminDataSource] Unknown error saat create user',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -100,15 +85,10 @@ class UserAdminDataSource {
       _log.i('[UserAdminDataSource] User updated successfully: $userId');
       return UserAdminModel.fromJson(
           response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[UserAdminDataSource] DioException saat update user: $userId',
           error: e, stackTrace: st);
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal mengupdate user');
-    } catch (e, st) {
-      _log.e('[UserAdminDataSource] Unknown error saat update user: $userId',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -120,15 +100,10 @@ class UserAdminDataSource {
       await _dioClient.dio.delete(ApiConstants.adminUserDetail(userId));
 
       _log.i('[UserAdminDataSource] User soft deleted: $userId');
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[UserAdminDataSource] DioException saat delete user: $userId',
           error: e, stackTrace: st);
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal menghapus user');
-    } catch (e, st) {
-      _log.e('[UserAdminDataSource] Unknown error saat delete user: $userId',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -144,15 +119,10 @@ class UserAdminDataSource {
       _log.i('[UserAdminDataSource] User restored successfully: $userId');
       return UserAdminModel.fromJson(
           response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[UserAdminDataSource] DioException saat restore user: $userId',
           error: e, stackTrace: st);
-      final message = e.response?.data?['message'] as String?;
-      throw Exception(message ?? 'Gagal merestore user');
-    } catch (e, st) {
-      _log.e('[UserAdminDataSource] Unknown error saat restore user: $userId',
-          error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 }
