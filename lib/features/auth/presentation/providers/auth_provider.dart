@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../../auth/domain/auth_status.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/data/models/user_model.dart';
@@ -90,7 +90,11 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _status = AuthStatus.error;
-      _errorMessage = _parseError(e);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       notifyListeners();
       return false;
     }
@@ -118,7 +122,11 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _status = AuthStatus.error;
-      _errorMessage = _parseError(e);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       notifyListeners();
       return false;
     }
@@ -166,36 +174,5 @@ class AuthProvider extends ChangeNotifier {
     // Set status authenticated SETELAH FCM setup (atau setelah FCM gagal)
     _status = AuthStatus.authenticated;
     notifyListeners();
-  }
-
-  /// Parse error to Indonesian error message
-  String _parseError(dynamic e) {
-    if (e is DioException) {
-      // Try to get message from response data first
-      if (e.response?.data is Map) {
-        final message = (e.response!.data as Map)['message'];
-        if (message != null && message.toString().isNotEmpty) {
-          return message.toString();
-        }
-      }
-
-      // Fallback to status code based messages
-      switch (e.response?.statusCode) {
-        case 401:
-          return 'Email atau password salah.';
-        case 422:
-          return 'Data tidak valid. Periksa kembali inputan Anda.';
-        case 500:
-          return 'Server sedang bermasalah. Coba lagi nanti.';
-        default:
-          if (e.type == DioExceptionType.connectionError ||
-              e.type == DioExceptionType.connectionTimeout ||
-              e.type == DioExceptionType.receiveTimeout) {
-            return 'Tidak ada koneksi internet.';
-          }
-          return 'Terjadi kesalahan. Coba lagi.';
-      }
-    }
-    return e.toString();
   }
 }
