@@ -47,31 +47,13 @@ class OrderListPage extends StatefulWidget {
 }
 
 class _OrderListPageState extends State<OrderListPage> {
-  late final ScrollController _scrollController;
-
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OrderProvider>().fetchOrders(refresh: true);
     });
-
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      context.read<OrderProvider>().loadMore();
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -85,7 +67,17 @@ class _OrderListPageState extends State<OrderListPage> {
             return RefreshIndicator(
               onRefresh: () => provider.fetchOrders(refresh: true),
               color: AppColors.accent,
-              child: _buildBody(provider),
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollEndNotification &&
+                      notification.metrics.pixels >=
+                          notification.metrics.maxScrollExtent - 200) {
+                    provider.loadMore();
+                  }
+                  return false;
+                },
+                child: _buildBody(provider),
+              ),
             );
           },
         ),
@@ -112,39 +104,39 @@ class _OrderListPageState extends State<OrderListPage> {
 
     final data = provider.isLoadingList && provider.orders.isEmpty ? _fakeOrders : provider.orders;
 
-    if (data.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.dark, width: 3),
-              ),
-              child: Icon(Icons.receipt_long,
-                  size: 48, color: AppColors.text.withValues(alpha: 0.5)),
-            ),
-            const SizedBox(height: 16),
-            Text('Belum ada pesanan', style: AppTextStyles.headline),
-            const SizedBox(height: 8),
-            Text('Yuk mulai pesan!', style: AppTextStyles.body),
-          ],
-        ),
-      );
-    }
-
-    final itemCount = data.length + (provider.hasNextPage ? 1 : 0);
-
     return Skeletonizer(
       enabled: provider.isLoadingList && provider.orders.isEmpty,
       child: ListView.builder(
-        controller: _scrollController,
         padding: const EdgeInsets.all(16),
-        itemCount: itemCount,
+        itemCount: data.isEmpty ? 1 : data.length + (provider.hasNextPage ? 1 : 0),
         itemBuilder: (context, index) {
+          if (data.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 100),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.dark, width: 3),
+                      ),
+                      child: Icon(Icons.receipt_long,
+                          size: 48, color: AppColors.text.withValues(alpha: 0.5)),
+                    ),
+                    const SizedBox(height: 16),
+                    Text('Belum ada pesanan', style: AppTextStyles.headline),
+                    const SizedBox(height: 8),
+                    Text('Yuk mulai pesan!', style: AppTextStyles.body),
+                  ],
+                ),
+              ),
+            );
+          }
+
           if (index == data.length) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
