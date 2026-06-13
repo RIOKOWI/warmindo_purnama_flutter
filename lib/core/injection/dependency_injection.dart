@@ -24,12 +24,15 @@ import '../../features/kasir/dashboard/presentation/providers/payment_list_provi
 import '../../features/admin/dashboard/data/datasources/product_admin_datasource.dart';
 import '../../features/admin/dashboard/data/datasources/category_admin_datasource.dart';
 import '../../features/admin/dashboard/data/datasources/user_admin_datasource.dart';
+import '../../features/admin/dashboard/data/datasources/table_admin_datasource.dart';
 import '../../features/admin/dashboard/domain/repositories/product_admin_repository_impl.dart';
 import '../../features/admin/dashboard/domain/repositories/category_admin_repository_impl.dart';
 import '../../features/admin/dashboard/domain/repositories/user_admin_repository_impl.dart';
+import '../../features/admin/dashboard/domain/repositories/table_admin_repository_impl.dart';
 import '../../features/admin/dashboard/presentation/providers/product_admin_provider.dart';
 import '../../features/admin/dashboard/presentation/providers/category_admin_provider.dart';
 import '../../features/admin/dashboard/presentation/providers/user_admin_provider.dart';
+import '../../features/admin/dashboard/presentation/providers/table_admin_provider.dart';
 import '../../features/product/data/datasources/product_remote_datasource.dart';
 import '../../features/product/domain/repositories/product_repository_impl.dart';
 import '../../features/product/presentation/providers/product_provider.dart';
@@ -54,6 +57,7 @@ final ProfileRemoteDataSource _profileRemoteDataSource = ProfileRemoteDataSource
 final ProductAdminDataSource _productAdminDataSource = ProductAdminDataSource(_dioClient);
 final CategoryAdminDataSource _categoryAdminDataSource = CategoryAdminDataSource(_dioClient);
 final UserAdminDataSource _userAdminDataSource = UserAdminDataSource(_dioClient);
+final TableAdminDataSource _tableAdminDataSource = TableAdminDataSource(_dioClient);
 
 /// Repositories
 final AuthRepositoryImpl _authRepository = AuthRepositoryImpl(_authRemoteDataSource, _secureStorage);
@@ -69,6 +73,7 @@ final ProfileRepositoryImpl _profileRepository = ProfileRepositoryImpl(dataSourc
 final ProductAdminRepositoryImpl _productAdminRepository = ProductAdminRepositoryImpl(dataSource: _productAdminDataSource);
 final CategoryAdminRepositoryImpl _categoryAdminRepository = CategoryAdminRepositoryImpl(dataSource: _categoryAdminDataSource);
 final UserAdminRepositoryImpl _userAdminRepository = UserAdminRepositoryImpl(dataSource: _userAdminDataSource);
+final TableAdminRepositoryImpl _tableAdminRepository = TableAdminRepositoryImpl(dataSource: _tableAdminDataSource);
 
 class DependencyInjection {
   /// Providers with proper type parameters - type erasure fixed
@@ -102,6 +107,9 @@ class DependencyInjection {
         ),
         ChangeNotifierProvider<UserAdminProvider>(
           create: (_) => UserAdminProvider(repository: _userAdminRepository),
+        ),
+        ChangeNotifierProvider<TableAdminProvider>(
+          create: (_) => TableAdminProvider(repository: _tableAdminRepository),
         ),
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(repository: _profileRepository),
