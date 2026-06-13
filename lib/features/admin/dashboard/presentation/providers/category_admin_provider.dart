@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../domain/repositories/category_admin_repository.dart';
 import '../../data/models/category_request_model.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
@@ -34,7 +35,11 @@ class CategoryAdminProvider extends ChangeNotifier {
       _log.i('[CategoryAdminProvider] Category created successfully: ${result.id}');
       return result;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[CategoryAdminProvider] Failed to create category',
           error: e, stackTrace: st);
       return null;
@@ -56,7 +61,11 @@ class CategoryAdminProvider extends ChangeNotifier {
       _log.i('[CategoryAdminProvider] Category updated successfully: ${result.id}');
       return result;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[CategoryAdminProvider] Failed to update category',
           error: e, stackTrace: st);
       return null;
@@ -78,7 +87,11 @@ class CategoryAdminProvider extends ChangeNotifier {
       _log.i('[CategoryAdminProvider] Category deleted successfully: $id');
       return true;
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[CategoryAdminProvider] Failed to delete category',
           error: e, stackTrace: st);
       return false;
