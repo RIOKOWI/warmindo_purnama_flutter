@@ -1,4 +1,5 @@
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
@@ -29,7 +30,7 @@ class AuthRemoteDataSource {
       );
       return AuthResponseModel.fromJson(response.data);
     } catch (e) {
-      throw Exception('Register failed: $e');
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -47,7 +48,7 @@ class AuthRemoteDataSource {
       );
       return AuthResponseModel.fromJson(response.data);
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -55,7 +56,7 @@ class AuthRemoteDataSource {
     try {
       await _dioClient.dio.post(ApiConstants.logout);
     } catch (e) {
-      throw Exception('Logout failed: $e');
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -65,7 +66,7 @@ class AuthRemoteDataSource {
       final data = response.data as Map<String, dynamic>;
       return UserModel.fromJson(data['data']);
     } catch (e) {
-      throw Exception('Get user failed: $e');
+      throw ErrorHandler.handle(e);
     }
   }
 }
