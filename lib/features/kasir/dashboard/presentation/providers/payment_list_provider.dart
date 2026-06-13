@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../domain/repositories/payment_list_repository.dart';
 import '../../data/models/payment_list_model.dart';
 
@@ -80,7 +81,11 @@ class PaymentListProvider extends ChangeNotifier {
         await _fetchAllRemainingPages();
       }
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[PaymentListProvider] Failed to fetch payments',
           error: e, stackTrace: st);
     } finally {
