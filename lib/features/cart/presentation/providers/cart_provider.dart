@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../data/models/cart_item_model.dart';
 import '../../domain/repositories/cart_repository.dart';
 
@@ -38,12 +38,13 @@ class CartProvider extends ChangeNotifier {
     try {
       _items = await _repository.getCart();
       _log.i('[CartProvider] Cart fetched: ${_items.length} items');
-    } on DioException catch (e) {
-      _errorMessage = _parseError(e);
-      _log.w('[CartProvider] Failed to fetch cart: ${_errorMessage}');
     } catch (e, st) {
-      _errorMessage = 'Gagal memuat keranjang';
-      _log.e('[CartProvider] Unknown error', error: e, stackTrace: st);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
+      _log.w('[CartProvider] Failed to fetch cart', error: e, stackTrace: st);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -84,17 +85,13 @@ class CartProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return true;
-    } on DioException catch (e) {
-      _errorMessage = _parseError(e);
-      _log.w('[CartProvider] Failed to add item: ${_errorMessage}');
-      if (_isLoading) {
-        _isLoading = false;
-        notifyListeners();
-      }
-      return false;
     } catch (e, st) {
-      _errorMessage = 'Gagal menambah item';
-      _log.e('[CartProvider] Unknown error', error: e, stackTrace: st);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
+      _log.w('[CartProvider] Failed to add item', error: e, stackTrace: st);
       if (_isLoading) {
         _isLoading = false;
         notifyListeners();
@@ -146,7 +143,7 @@ class CartProvider extends ChangeNotifier {
       );
       _log.d('[CartProvider] Synced to server: cartItemId=$cartItemId');
       return true;
-    } on DioException {
+    } catch (e, st) {
       // Rollback on failure
       _items[index] = CartItem(
         cartItemId: _items[index].cartItemId,
@@ -154,18 +151,7 @@ class CartProvider extends ChangeNotifier {
         product: _items[index].product,
       );
       _errorMessage = 'Gagal mengubah jumlah';
-      _log.w('[CartProvider] Rollback: cartItemId=$cartItemId');
-      notifyListeners();
-      return false;
-    } catch (e, st) {
-      // Rollback on unexpected error
-      _items[index] = CartItem(
-        cartItemId: _items[index].cartItemId,
-        quantity: oldQuantity,
-        product: _items[index].product,
-      );
-      _errorMessage = 'Gagal mengubah jumlah';
-      _log.e('[CartProvider] Unknown error', error: e, stackTrace: st);
+      _log.w('[CartProvider] Rollback: cartItemId=$cartItemId', error: e, stackTrace: st);
       notifyListeners();
       return false;
     }
@@ -190,18 +176,15 @@ class CartProvider extends ChangeNotifier {
       await _repository.removeItem(cartItemId);
       _log.i('[CartProvider] Item removed: cartItemId=$cartItemId');
       return true;
-    } on DioException catch (e) {
+    } catch (e, st) {
       // Rollback: restore item
       _items.insert(index, removedItem);
-      _errorMessage = _parseError(e);
-      _log.w('[CartProvider] Rollback: failed to remove cartItemId=$cartItemId');
-      notifyListeners();
-      return false;
-    } catch (e, st) {
-      // Rollback
-      _items.insert(index, removedItem);
-      _errorMessage = 'Gagal menghapus item';
-      _log.e('[CartProvider] Unknown error', error: e, stackTrace: st);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
+      _log.w('[CartProvider] Rollback: failed to remove cartItemId=$cartItemId', error: e, stackTrace: st);
       notifyListeners();
       return false;
     }
@@ -223,15 +206,13 @@ class CartProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return true;
-    } on DioException catch (e) {
-      _errorMessage = _parseError(e);
-      _log.w('[CartProvider] Failed to clear cart: ${_errorMessage}');
-      _isLoading = false;
-      notifyListeners();
-      return false;
     } catch (e, st) {
-      _errorMessage = 'Gagal mengosongkan keranjang';
-      _log.e('[CartProvider] Unknown error', error: e, stackTrace: st);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
+      _log.w('[CartProvider] Failed to clear cart', error: e, stackTrace: st);
       _isLoading = false;
       notifyListeners();
       return false;
@@ -243,17 +224,5 @@ class CartProvider extends ChangeNotifier {
     _items = [];
     _log.i('[CartProvider] Local cart cleared');
     notifyListeners();
-  }
-
-  // ─── Helpers ────────────────────────────────────────────────
-
-  String _parseError(dynamic e) {
-    if (e is DioException && e.response?.data is Map) {
-      final message = (e.response!.data as Map)['message'];
-      if (message != null && message.toString().isNotEmpty) {
-        return message.toString();
-      }
-    }
-    return 'Terjadi kesalahan';
   }
 }
