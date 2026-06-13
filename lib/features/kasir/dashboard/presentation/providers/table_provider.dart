@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../domain/repositories/table_repository.dart';
 import '../../data/models/table_model.dart';
 
@@ -38,7 +39,11 @@ class TableProvider extends ChangeNotifier {
       _tables = await _repository.getAllTables();
       _log.i('[TableProvider] Loaded ${_tables.length} tables');
     } catch (e, st) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[TableProvider] Failed to fetch tables', error: e, stackTrace: st);
     } finally {
       _isLoading = false;
@@ -80,7 +85,11 @@ class TableProvider extends ChangeNotifier {
     } catch (e, st) {
       // Rollback ke state lama
       _tables[index] = oldTable;
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _log.e('[TableProvider] Failed to update table $tableId', error: e, stackTrace: st);
       notifyListeners();
       return false;
@@ -91,7 +100,7 @@ class TableProvider extends ChangeNotifier {
   Future<bool> toggleTableStatus(int tableId) async {
     final table = _tables.firstWhere(
       (t) => t.id == tableId,
-      orElse: () => throw Exception('Meja tidak ditemukan'),
+      orElse: () => throw AppException('Meja tidak ditemukan'),
     );
 
     final newStatus = table.isAvailable ? 'occupied' : 'available';
