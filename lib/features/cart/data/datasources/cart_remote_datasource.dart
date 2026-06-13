@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import '../models/cart_item_model.dart';
 
@@ -18,9 +18,9 @@ class CartRemoteDataSource {
 
       _log.d('[CartRemoteDataSource] Cart fetched successfully');
       return CartResponse.fromJson(response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CartRemoteDataSource] Failed to fetch cart', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -40,9 +40,9 @@ class CartRemoteDataSource {
 
       _log.d('[CartRemoteDataSource] Item added: $productId x$quantity');
       return CartItem.fromJson(response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CartRemoteDataSource] Failed to add item', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -59,9 +59,9 @@ class CartRemoteDataSource {
 
       _log.d('[CartRemoteDataSource] Quantity updated: $cartItemId -> $quantity');
       return CartItem.fromJson(response.data['data'] as Map<String, dynamic>);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CartRemoteDataSource] Failed to update quantity', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -71,9 +71,9 @@ class CartRemoteDataSource {
       await _dioClient.dio.delete(ApiConstants.cartItem(cartItemId));
 
       _log.d('[CartRemoteDataSource] Item removed: $cartItemId');
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CartRemoteDataSource] Failed to remove item', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -83,9 +83,9 @@ class CartRemoteDataSource {
       await _dioClient.dio.delete(ApiConstants.cart);
 
       _log.d('[CartRemoteDataSource] Cart cleared');
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CartRemoteDataSource] Failed to clear cart', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 }
