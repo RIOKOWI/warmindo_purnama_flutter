@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/product_model.dart';
@@ -23,12 +23,9 @@ class ProductRemoteDataSource {
       _log.d('[ProductRemoteDataSource] Fetched ${list.length} products');
 
       return list.map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList();
-    } on DioException catch (e, st) {
-      _log.e('[ProductRemoteDataSource] Failed to fetch products', error: e, stackTrace: st);
-      throw Exception('Gagal mengambil produk: ${e.message}');
     } catch (e, st) {
-      _log.e('[ProductRemoteDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      _log.e('[ProductRemoteDataSource] Failed to fetch products', error: e, stackTrace: st);
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -43,12 +40,9 @@ class ProductRemoteDataSource {
       _log.d('[ProductRemoteDataSource] Fetched ${list.length} categories');
 
       return list.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList();
-    } on DioException catch (e, st) {
-      _log.e('[ProductRemoteDataSource] Failed to fetch categories', error: e, stackTrace: st);
-      throw Exception('Gagal mengambil kategori: ${e.message}');
     } catch (e, st) {
-      _log.e('[ProductRemoteDataSource] Unknown error', error: e, stackTrace: st);
-      rethrow;
+      _log.e('[ProductRemoteDataSource] Failed to fetch categories', error: e, stackTrace: st);
+      throw ErrorHandler.handle(e);
     }
   }
 }
