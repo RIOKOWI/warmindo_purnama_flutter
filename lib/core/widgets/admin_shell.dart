@@ -6,9 +6,9 @@ import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/p
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/table_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/analytics_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/payment_list_page.dart';
-import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/table_status_page.dart';
 import 'package:warmindo_purnama_flutter/features/order/presentation/pages/order_list_page.dart';
 import 'package:warmindo_purnama_flutter/features/profile/presentation/pages/profile_page.dart';
 
@@ -29,6 +29,7 @@ class _AdminShellState extends State<AdminShell> {
     ProductManagePage(),
     CategoryManagePage(),
     UserManagePage(),
+    AnalyticsPage(),
   ];
 
   final List<NavItemData> _navItems = const [
@@ -38,6 +39,7 @@ class _AdminShellState extends State<AdminShell> {
     NavItemData(icon: Icons.fastfood, label: 'Produk'),
     NavItemData(icon: Icons.category, label: 'Kategori'),
     NavItemData(icon: Icons.people, label: 'User'),
+    NavItemData(icon: Icons.analytics, label: 'Analitik'),
   ];
 
   void _logout() {
@@ -119,10 +121,11 @@ class _AdminShellState extends State<AdminShell> {
             // Navigation Items
             _buildNavItem(0, Icons.receipt_long, 'Order'),
             _buildNavItem(1, Icons.payment, 'Bayar'),
-            _buildNavItem(3, Icons.settings, 'Kelola Meja'),
-            _buildNavItem(4, Icons.fastfood, 'Produk'),
-            _buildNavItem(5, Icons.category, 'Kategori'),
-            _buildNavItem(6, Icons.people, 'User'),
+            _buildNavItem(2, Icons.settings, 'Kelola Meja'),
+            _buildNavItem(3, Icons.fastfood, 'Produk'),
+            _buildNavItem(4, Icons.category, 'Kategori'),
+            _buildNavItem(5, Icons.people, 'User'),
+            _buildNavItem(6, Icons.analytics, 'Analitik'),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.account_circle),
