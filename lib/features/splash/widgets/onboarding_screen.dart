@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:warmindo_purnama_flutter/core/services/secure_storage.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
@@ -107,15 +108,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           spacing: 12,
           runSpacing: 12,
           children: _paymentLogos.map((data) {
-            return Container(
+            return SizedBox(
               width: 52,
               height: 36,
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.dark.withValues(alpha: 0.2)),
-              ),
               child: _PaymentLogo(path: data.path, fallbackText: data.name),
             );
           }).toList(),
@@ -130,25 +125,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 160,
-            height: 160,
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.dark, width: 4),
-              boxShadow: const [
-                BoxShadow(
-                  color: AppColors.dark,
-                  offset: Offset(8, 8),
-                  blurRadius: 0,
-                ),
-              ],
-            ),
-            child: Icon(
-              data.icon,
-              size: 80,
-              color: AppColors.accent,
+          SizedBox(
+            width: 200,
+            height: 200,
+            child: Lottie.asset(
+              data.lottiePath,
+              fit: BoxFit.contain,
+              repeat: true,
             ),
           ),
           const SizedBox(height: 48),
