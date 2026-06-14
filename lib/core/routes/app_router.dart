@@ -23,6 +23,7 @@ import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/p
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/category_manage_page.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/analytics_page.dart';
 import 'package:warmindo_purnama_flutter/features/profile/presentation/pages/profile_page.dart';
 
 /// Arguments for payment route
@@ -63,6 +64,7 @@ class AppRouter {
   static const String productManage = '/admin/products';
   static const String categoryManage = '/admin/categories';
   static const String userManage = '/admin/users';
+  static const String analytics = '/admin/analytics';
   static const String profile = '/profile';
 
   // Shell routes per role
@@ -164,6 +166,14 @@ class AppRouter {
           RoleGuard(
             allowedRoles: const ['admin'],
             child: const UserManagePage(),
+          ),
+          settings,
+        );
+      case analytics:
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const AnalyticsPage(),
           ),
           settings,
         );
