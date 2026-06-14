@@ -25,14 +25,17 @@ import '../../features/admin/dashboard/data/datasources/product_admin_datasource
 import '../../features/admin/dashboard/data/datasources/category_admin_datasource.dart';
 import '../../features/admin/dashboard/data/datasources/user_admin_datasource.dart';
 import '../../features/admin/dashboard/data/datasources/table_admin_datasource.dart';
+import '../../features/admin/dashboard/data/datasources/order_analytics_datasource.dart';
 import '../../features/admin/dashboard/domain/repositories/product_admin_repository_impl.dart';
 import '../../features/admin/dashboard/domain/repositories/category_admin_repository_impl.dart';
 import '../../features/admin/dashboard/domain/repositories/user_admin_repository_impl.dart';
 import '../../features/admin/dashboard/domain/repositories/table_admin_repository_impl.dart';
+import '../../features/admin/dashboard/domain/repositories/order_analytics_repository_impl.dart';
 import '../../features/admin/dashboard/presentation/providers/product_admin_provider.dart';
 import '../../features/admin/dashboard/presentation/providers/category_admin_provider.dart';
 import '../../features/admin/dashboard/presentation/providers/user_admin_provider.dart';
 import '../../features/admin/dashboard/presentation/providers/table_admin_provider.dart';
+import '../../features/admin/dashboard/presentation/providers/order_analytics_provider.dart';
 import '../../features/product/data/datasources/product_remote_datasource.dart';
 import '../../features/product/domain/repositories/product_repository_impl.dart';
 import '../../features/product/presentation/providers/product_provider.dart';
@@ -58,6 +61,7 @@ final ProductAdminDataSource _productAdminDataSource = ProductAdminDataSource(_d
 final CategoryAdminDataSource _categoryAdminDataSource = CategoryAdminDataSource(_dioClient);
 final UserAdminDataSource _userAdminDataSource = UserAdminDataSource(_dioClient);
 final TableAdminDataSource _tableAdminDataSource = TableAdminDataSource(_dioClient);
+final OrderAnalyticsDataSource _orderAnalyticsDataSource = OrderAnalyticsDataSource(_dioClient);
 
 /// Repositories
 final AuthRepositoryImpl _authRepository = AuthRepositoryImpl(_authRemoteDataSource, _secureStorage);
@@ -74,6 +78,7 @@ final ProductAdminRepositoryImpl _productAdminRepository = ProductAdminRepositor
 final CategoryAdminRepositoryImpl _categoryAdminRepository = CategoryAdminRepositoryImpl(dataSource: _categoryAdminDataSource);
 final UserAdminRepositoryImpl _userAdminRepository = UserAdminRepositoryImpl(dataSource: _userAdminDataSource);
 final TableAdminRepositoryImpl _tableAdminRepository = TableAdminRepositoryImpl(dataSource: _tableAdminDataSource);
+final OrderAnalyticsRepositoryImpl _orderAnalyticsRepository = OrderAnalyticsRepositoryImpl(dataSource: _orderAnalyticsDataSource);
 
 class DependencyInjection {
   /// Providers with proper type parameters - type erasure fixed
@@ -110,6 +115,9 @@ class DependencyInjection {
         ),
         ChangeNotifierProvider<TableAdminProvider>(
           create: (_) => TableAdminProvider(repository: _tableAdminRepository),
+        ),
+        ChangeNotifierProvider<OrderAnalyticsProvider>(
+          create: (_) => OrderAnalyticsProvider(repository: _orderAnalyticsRepository),
         ),
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(repository: _profileRepository),
