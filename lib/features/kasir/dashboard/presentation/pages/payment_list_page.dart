@@ -83,30 +83,7 @@ class _PaymentListPageState extends State<PaymentListPage> {
   }
 
   Widget _buildBody(PaymentListProvider provider) {
-    // Tampilkan loading shimmer saat fetch semua halaman
-    if (provider.isFetchingAll) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Skeletonizer(
-              enabled: true,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.dark, width: 3),
-                ),
-                child: const Icon(Icons.payment, size: 48, color: AppColors.accent),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text('Memuat semua data...', style: AppTextStyles.body),
-          ],
-        ),
-      );
-    }
+    
 
     if (provider.errorMessage != null && provider.payments.isEmpty) {
       return Center(
