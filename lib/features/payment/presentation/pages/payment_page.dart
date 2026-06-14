@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:warmindo_purnama_flutter/core/constants/payment_constants.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
@@ -345,15 +346,14 @@ class _PaymentSuccessView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.success, width: 4),
+            SizedBox(
+              width: 150,
+              height: 150,
+              child: Lottie.asset(
+                'lottie/payment-success.json',
+                fit: BoxFit.contain,
+                repeat: false,
               ),
-              child: const Icon(Icons.check_circle,
-                  size: 64, color: AppColors.success),
             ),
             const SizedBox(height: 24),
             Text('Pembayaran Berhasil!', style: AppTextStyles.headline),
