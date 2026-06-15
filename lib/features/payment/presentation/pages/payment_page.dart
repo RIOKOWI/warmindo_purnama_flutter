@@ -347,10 +347,10 @@ class _PaymentSuccessView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 150,
-              height: 150,
+              width: 200,
+              height: 200,
               child: Lottie.asset(
-                'lottie/payment-success.json',
+                'assets/lottie/payment-confirmed.json',
                 fit: BoxFit.contain,
                 repeat: false,
               ),
