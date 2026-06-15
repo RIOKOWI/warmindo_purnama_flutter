@@ -78,16 +78,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   static const List<_PaymentLogoData> _paymentLogos = [
-    _PaymentLogoData('images/payments/qris-logo.svg', 'QRIS'),
-    _PaymentLogoData('images/payments/bank-negara-indonesia-(bni)-logo.svg', 'BNI'),
-    _PaymentLogoData('images/payments/bank-rakyat-indonesia-(bri)-logo.svg', 'BRI'),
-    _PaymentLogoData('images/payments/cimbniaga.png', 'CIMB'),
-    _PaymentLogoData('images/payments/bank-permata-logo.svg', 'Permata'),
-    _PaymentLogoData('images/payments/maybank.png', 'Maybank'),
-    _PaymentLogoData('images/payments/BSS.png', 'BSS'),
-    _PaymentLogoData('images/payments/bank-neo-commerce-(bnc)-logo.png', 'BNC'),
-    _PaymentLogoData('images/payments/atm-bersama-logo.svg', 'ATM'),
-    _PaymentLogoData('images/payments/bank-artha-graha-logo.png', 'Artha'),
+    _PaymentLogoData('assets/images/payments/qris-logo.svg', 'QRIS'),
+    _PaymentLogoData('assets/images/payments/bank-negara-indonesia-(bni)-logo.svg', 'BNI'),
+    _PaymentLogoData('assets/images/payments/bank-rakyat-indonesia-(bri)-logo.svg', 'BRI'),
+    _PaymentLogoData('assets/images/payments/cimbniaga.png', 'CIMB'),
+    _PaymentLogoData('assets/images/payments/bank-permata-logo.svg', 'Permata'),
+    _PaymentLogoData('assets/images/payments/maybank.png', 'Maybank'),
+    _PaymentLogoData('assets/images/payments/BSS.png', 'BSS'),
+    _PaymentLogoData('assets/images/payments/bank-neo-commerce-(bnc)-logo.png', 'BNC'),
+    _PaymentLogoData('assets/images/payments/atm-bersama-logo.svg', 'ATM'),
+    _PaymentLogoData('assets/images/payments/bank-artha-graha-logo.png', 'Artha'),
   ];
 
   Widget _buildPaymentLogos() {
@@ -125,9 +125,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
-            width: 200,
-            height: 200,
+          Container(
+            width: 280,
+            height: 280,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: Lottie.asset(
               data.lottiePath,
               fit: BoxFit.contain,

@@ -18,19 +18,19 @@ class OnboardingData extends Equatable {
 class OnboardingContents {
   static const List<OnboardingData> screens = [
     OnboardingData(
-      lottiePath: 'lottie/noodle.json',
+      lottiePath: 'assets/lottie/noodle.json',
       title: 'Selamat Datang di Warmindo Purnama',
       description:
           'Nikmati berbagai menu lezat dengan harga terjangkau. Pesan makanan favorit Anda dengan mudah.',
     ),
     OnboardingData(
-      lottiePath: 'lottie/Order-food.json',
+      lottiePath: 'assets/lottie/Order-food.json',
       title: 'Mudah & Praktis',
       description:
           'Pilih menu, tambahkan ke keranjang, dan checkout dengan beberapa sentuhan saja.',
     ),
     OnboardingData(
-      lottiePath: 'lottie/qris.json',
+      lottiePath: 'assets/lottie/ScanQR-Paymeny.json',
       title: 'Pembayaran Lengkap',
       description:
           'Terima pembayaran lebih mudah dengan berbagai pilihan metode yang tersedia dalam satu aplikasi.',
