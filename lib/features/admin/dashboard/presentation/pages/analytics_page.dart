@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -684,10 +688,29 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         ),
       );
 
-      await Printing.sharePdf(
-        bytes: await pdf.save(),
-        filename: 'laporan_analitik_${DateTime.now().millisecondsSinceEpoch}.pdf',
-      );
+      final pdfBytes = await pdf.save();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+
+      if (kIsWeb) {
+        await Printing.sharePdf(
+          bytes: pdfBytes,
+          filename: 'laporan_analitik_$timestamp.pdf',
+        );
+      } else {
+        final directory = await _getDownloadDirectory();
+        final file = File('${directory.path}/laporan_analitik_$timestamp.pdf');
+        await file.writeAsBytes(pdfBytes);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('PDF berhasil disimpan ke: ${file.path}'),
+              backgroundColor: AppColors.success,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -698,6 +721,15 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         );
       }
     }
+  }
+
+  Future<Directory> _getDownloadDirectory() async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final pdfDir = Directory('${docsDir.path}/PDFs');
+    if (!await pdfDir.exists()) {
+      await pdfDir.create(recursive: true);
+    }
+    return pdfDir;
   }
 
   String _getPeriodLabel(AnalyticsPeriod period) {
