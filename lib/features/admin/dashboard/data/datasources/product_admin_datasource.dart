@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:warmindo_purnama_flutter/core/constants/api_constants.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import 'package:warmindo_purnama_flutter/core/errors/error_handler.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/product_model.dart';
@@ -37,7 +38,27 @@ class ProductAdminDataSource {
       _log.d('[ProductAdminDataSource] Response status: ${response.statusCode}');
       _log.d('[ProductAdminDataSource] Response data: ${response.data}');
 
-      return ProductModel.fromJson(response.data['data'] as Map<String, dynamic>);
+      // Validate response structure
+      final data = response.data;
+      if (data == null) {
+        _log.w('[ProductAdminDataSource] Response data is null');
+        throw const AppException('Respon server tidak valid');
+      }
+
+      final productData = data['data'];
+      if (productData == null) {
+        _log.w('[ProductAdminDataSource] Response data["data"] is null');
+        // Check if this is a direct product response (no wrapper)
+        if (data is Map<String, dynamic> && data.containsKey('id')) {
+          _log.d('[ProductAdminDataSource] Using direct response as product data');
+          return ProductModel.fromJson(data);
+        }
+        throw const AppException('Data produk tidak ditemukan dalam respon');
+      }
+
+      return ProductModel.fromJson(productData as Map<String, dynamic>);
+    } on AppException {
+      rethrow;
     } catch (e, st) {
       _log.e('[ProductAdminDataSource] DioException saat create product',
           error: e, stackTrace: st);
@@ -70,7 +91,27 @@ class ProductAdminDataSource {
       _log.d('[ProductAdminDataSource] Response status: ${response.statusCode}');
       _log.d('[ProductAdminDataSource] Response data: ${response.data}');
 
-      return ProductModel.fromJson(response.data['data'] as Map<String, dynamic>);
+      // Validate response structure
+      final data = response.data;
+      if (data == null) {
+        _log.w('[ProductAdminDataSource] Response data is null');
+        throw const AppException('Respon server tidak valid');
+      }
+
+      final productData = data['data'];
+      if (productData == null) {
+        _log.w('[ProductAdminDataSource] Response data["data"] is null');
+        // Check if this is a direct product response (no wrapper)
+        if (data is Map<String, dynamic> && data.containsKey('id')) {
+          _log.d('[ProductAdminDataSource] Using direct response as product data');
+          return ProductModel.fromJson(data);
+        }
+        throw const AppException('Data produk tidak ditemukan dalam respon');
+      }
+
+      return ProductModel.fromJson(productData as Map<String, dynamic>);
+    } on AppException {
+      rethrow;
     } catch (e, st) {
       _log.e('[ProductAdminDataSource] DioException saat update product: $id',
           error: e, stackTrace: st);
