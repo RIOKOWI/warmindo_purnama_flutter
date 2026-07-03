@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -17,6 +18,8 @@ import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/data/models/order_analytics_model.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/providers/order_analytics_provider.dart';
 import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/widgets/analytics_skeletonizer.dart';
+
+final _log = Logger();
 
 /// Analytics dashboard page for admin
 class AnalyticsPage extends StatefulWidget {
@@ -711,7 +714,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           );
         }
       }
-    } catch (e) {
+    } catch (e, st) {
+      _log.e('[AnalyticsPage] Gagal download PDF', error: e, stackTrace: st);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -724,12 +728,16 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Future<Directory> _getDownloadDirectory() async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    final pdfDir = Directory('${docsDir.path}/PDFs');
-    if (!await pdfDir.exists()) {
-      await pdfDir.create(recursive: true);
+    // Use Downloads folder (scoped storage compatible for Android 10+)
+    if (Platform.isAndroid) {
+      final downloadsDir = Directory('/storage/emulated/0/Download');
+      if (await downloadsDir.exists()) {
+        return downloadsDir;
+      }
     }
-    return pdfDir;
+    // Fallback for other platforms or if Download doesn't exist
+    final docsDir = await getApplicationDocumentsDirectory();
+    return docsDir;
   }
 
   String _getPeriodLabel(AnalyticsPeriod period) {
