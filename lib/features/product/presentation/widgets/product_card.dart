@@ -95,16 +95,20 @@ class ProductCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Rp ${priceFormat.format(product.price)}',
-                          style: AppTextStyles.body.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.accent,
+                        Flexible(
+                          child: Text(
+                            'Rp ${priceFormat.format(product.price)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.body.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.accent,
+                            ),
                           ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                              horizontal: 6, vertical: 4),
                           decoration: BoxDecoration(
                             color: product.isAvailable
                                 ? AppColors.success.withValues(alpha: 0.1)
