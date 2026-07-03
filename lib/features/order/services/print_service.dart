@@ -113,7 +113,6 @@ class PrintService {
 
     // Totals
     buffer.writeln('Subtotal    : ${_formatRupiah(order['subtotal'] ?? 0)}');
-    buffer.writeln('Pajak (10%) : ${_formatRupiah(order['tax'] ?? 0)}');
     buffer.writeln('================================');
     buffer.writeln('TOTAL       : ${_formatRupiah(order['total'] ?? 0)}');
     buffer.writeln('================================');
