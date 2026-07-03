@@ -3,6 +3,9 @@
     <!-- FCM: permission notifikasi (Android 13+) dan vibrate -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- Storage: for PDF download on Android 9 and below -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
 
     <application
         android:label="warmindo_purnama_flutter"
