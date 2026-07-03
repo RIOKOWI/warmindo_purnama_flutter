@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
 import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
-import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/providers/product_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/product_model.dart';
 import 'package:warmindo_purnama_flutter/features/product/data/models/category_model.dart';
@@ -162,8 +160,6 @@ class _ProductManagePageState extends State<ProductManagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.read<AuthProvider>();
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: NeoAppBar(
@@ -245,25 +241,6 @@ class _ProductManagePageState extends State<ProductManagePage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  const _ActionButton({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 8),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.dark, width: 2),
-      ),
-      child: Icon(icon, color: AppColors.text, size: 20),
     );
   }
 }
