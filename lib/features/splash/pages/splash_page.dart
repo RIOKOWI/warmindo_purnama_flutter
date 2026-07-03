@@ -35,10 +35,10 @@ class SplashPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.restaurant_menu,
-                  size: 60,
-                  color: AppColors.accent,
+                child: Image.asset(
+                  'assets/icons/warmindo-icon.webp',
+                  width: 60,
+                  height: 60,
                 ),
               ),
               const SizedBox(height: 32),
@@ -53,15 +53,6 @@ class SplashPage extends StatelessWidget {
                 style: AppTextStyles.headline.copyWith(
                   color: AppColors.accent,
                   letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 48),
-              SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  color: AppColors.dark.withValues(alpha: 0.5),
                 ),
               ),
             ],
