@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
                 const CategoryFilterWidget(),
                 Expanded(
                   child: Container(
-                    margin: const EdgeInsets.only(top: 8),
+                    margin: const EdgeInsets.only(top: 4),
                     decoration: const BoxDecoration(
                       color: AppColors.background,
                     ),
