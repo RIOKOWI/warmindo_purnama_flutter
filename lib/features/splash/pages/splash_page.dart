@@ -36,7 +36,7 @@ class SplashPage extends StatelessWidget {
                   ],
                 ),
                 child: Image.asset(
-                  'assets/icons/warmindo-icon.webp',
+                  'assets/icons/warmindo-icon.jpeg',
                   width: 60,
                   height: 60,
                 ),
