@@ -54,7 +54,7 @@ class _ProductManagePageState extends State<ProductManagePage> {
 
       if (mounted) {
         setState(() {
-          _products = List.from(productProvider.products);
+          _products = List.from(productProvider.allProducts);
           _categories = List.from(productProvider.categories);
           _isLoading = false;
         });
