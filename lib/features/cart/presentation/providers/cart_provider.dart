@@ -25,8 +25,11 @@ class CartProvider extends ChangeNotifier {
   /// Total price of all items in cart
   int get totalPrice => _items.fold(0, (sum, item) => sum + item.subtotal);
 
-  /// Number of unique items in cart (for badge display)
-  int get totalItemCount => _items.length;
+  /// Number of unique items in cart
+  int get uniqueItemCount => _items.length;
+
+  /// Total quantity of all items in cart (for badge display)
+  int get totalItemCount => _items.fold(0, (sum, item) => sum + item.quantity);
 
   // ─── Fetch ──────────────────────────────────────────────
 
