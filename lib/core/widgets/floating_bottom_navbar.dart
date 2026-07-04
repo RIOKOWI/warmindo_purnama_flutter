@@ -48,10 +48,12 @@ class FloatingBottomNavBar extends StatelessWidget {
 class NavItemData {
   final IconData icon;
   final String label;
+  final int? badgeCount;
 
   const NavItemData({
     required this.icon,
     required this.label,
+    this.badgeCount,
   });
 }
 
@@ -85,13 +87,28 @@ class _NavItem extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              data.icon,
-              size: 24,
-              color: isActive
-                  ? Colors.white
-                  : Colors.white.withValues(alpha: 0.5),
-            ),
+            if (data.badgeCount != null && data.badgeCount! > 0)
+              Badge(
+                label: Text(
+                  data.badgeCount! > 99 ? '99+' : data.badgeCount.toString(),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+                child: Icon(
+                  data.icon,
+                  size: 24,
+                  color: isActive
+                      ? Colors.white
+                      : Colors.white.withValues(alpha: 0.5),
+                ),
+              )
+            else
+              Icon(
+                data.icon,
+                size: 24,
+                color: isActive
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.5),
+              ),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),
               child: isActive
