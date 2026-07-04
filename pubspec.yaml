@@ -121,6 +121,6 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icons/warmindo-icon.webp"
+  image_path: "assets/icons/warmindo-icon.jpeg"
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/icons/warmindo-icon.webp"
+  adaptive_icon_foreground: "assets/icons/warmindo-icon.jpeg"
