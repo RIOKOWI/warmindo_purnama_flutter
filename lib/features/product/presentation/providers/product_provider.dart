@@ -21,6 +21,9 @@ class ProductProvider extends ChangeNotifier {
 
   // Getters
   List<CategoryModel> get categories => _categories;
+  /// All products without any category filter (used by Admin)
+  List<ProductModel> get allProducts => _products;
+  /// Filtered products based on selectedCategoryId (used by Customer/Kasir)
   List<ProductModel> get products => _selectedCategoryId == null
       ? _products
       : _products.where((p) => p.category.id == _selectedCategoryId).toList();
