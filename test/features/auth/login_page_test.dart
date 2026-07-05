@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
+import 'package:lottie/lottie.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_text_field.dart';
 import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/features/auth/domain/auth_status.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
 import '../../mocks.mocks.dart';
+
+// Fake Lottie asset untuk testing
+class FakeLottie extends StatelessWidget {
+  const FakeLottie({super.key});
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(height: 200);
+}
 
 void main() {
   late MockAuthProvider mockAuthProvider;
@@ -23,7 +32,14 @@ void main() {
 
   Widget buildWidget() => ChangeNotifierProvider<AuthProvider>.value(
         value: mockAuthProvider,
-        child: const MaterialApp(home: LoginPage()),
+        child: MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(),
+            child: Builder(
+              builder: (context) => const LoginPage(),
+            ),
+          ),
+        ),
       );
 
   group('LoginPage - UI elements', () {
@@ -140,7 +156,8 @@ void main() {
       await tester.enterText(find.byType(TextField).first, 'test@email.com');
       await tester.enterText(find.byType(TextField).last, 'Test123@');
       await tester.tap(find.text('MASUK'));
-      await tester.pumpAndSettle();
+      await tester.pump(); // Use pump() instead of pumpAndSettle() - Lottie repeats forever
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Email atau password salah.'), findsOneWidget);

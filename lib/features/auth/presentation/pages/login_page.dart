@@ -191,8 +191,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-
-            // Lottie animation pinned to bottom
             Container(
               height: 200,
               alignment: Alignment.center,
