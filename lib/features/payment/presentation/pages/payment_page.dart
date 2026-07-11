@@ -358,9 +358,9 @@ class _PaymentSuccessView extends StatelessWidget {
             const SizedBox(height: 24),
             Text('Pembayaran Berhasil!', style: AppTextStyles.headline),
             const SizedBox(height: 16),
-            Text('Invoice: ${payment.paymentNumber ?? 'N/A'}',
-                style: AppTextStyles.body),
-            const SizedBox(height: 8),
+            // Text('Invoice: ${payment.paymentNumber ?? 'N/A'}',
+            //     style: AppTextStyles.body),
+            // const SizedBox(height: 8),
             Text(
               'Total: Rp ${currencyFormat.format(payment.totalPayment)}',
               style: AppTextStyles.headline.copyWith(color: AppColors.accent),
