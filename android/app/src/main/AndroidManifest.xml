@@ -8,7 +8,7 @@
         android:maxSdkVersion="28"/>
 
     <application
-        android:label="warmindo_purnama_flutter"
+        android:label="Warmindo Purnama"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

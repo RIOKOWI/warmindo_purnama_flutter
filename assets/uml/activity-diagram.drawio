@@ -38,7 +38,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="kelola produk" id="amuI9sgkwQ76magcnwpi">
-        <mxGraphModel dx="-406" dy="331" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+        <mxGraphModel dx="-370" dy="331" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
             <root>
                 <mxCell id="RNCi36I2J-WBGM_0trxY-0"/>
                 <mxCell id="RNCi36I2J-WBGM_0trxY-1" parent="RNCi36I2J-WBGM_0trxY-0"/>
@@ -105,7 +105,7 @@
                 <mxCell id="ZwB0hlzzUOZ45rr2r1c5-17" edge="1" parent="ZwB0hlzzUOZ45rr2r1c5-10" source="ZwB0hlzzUOZ45rr2r1c5-18" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;exitX=0.5;exitY=1;exitDx=0;exitDy=0;curved=0;" target="ZwB0hlzzUOZ45rr2r1c5-20">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="ZwB0hlzzUOZ45rr2r1c5-18" parent="ZwB0hlzzUOZ45rr2r1c5-10" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;fontStyle=1;fillColor=default;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="tampilkan data baru meja" vertex="1">
+                <mxCell id="ZwB0hlzzUOZ45rr2r1c5-18" parent="ZwB0hlzzUOZ45rr2r1c5-10" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;fontStyle=1;fillColor=default;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="tampilkan data baru produk" vertex="1">
                     <mxGeometry height="50" width="100" x="20" y="600" as="geometry"/>
                 </mxCell>
                 <mxCell id="ZwB0hlzzUOZ45rr2r1c5-19" connectable="0" parent="ZwB0hlzzUOZ45rr2r1c5-10" style="group;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
@@ -152,7 +152,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="kelola kategori" id="tokxamYmJJ5EgClfq7Gi">
-        <mxGraphModel dx="-474" dy="-126" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+        <mxGraphModel dx="-444" dy="-126" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
             <root>
                 <mxCell id="_vkCY3aAJ8IkqnLWeEgJ-0"/>
                 <mxCell id="_vkCY3aAJ8IkqnLWeEgJ-1" parent="_vkCY3aAJ8IkqnLWeEgJ-0"/>
@@ -380,7 +380,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="kelola meja" id="asTKWfX7qHnHr3kNTIiP">
-        <mxGraphModel dx="878" dy="738" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+        <mxGraphModel dx="958" dy="738" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
             <root>
                 <mxCell id="HTy0VOnHJ1uUOifJnfKd-0"/>
                 <mxCell id="HTy0VOnHJ1uUOifJnfKd-1" parent="HTy0VOnHJ1uUOifJnfKd-0"/>
@@ -1325,7 +1325,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="buat pesanan" id="T-2rXFb2VvRvp3s60kg2">
-        <mxGraphModel dx="317" dy="267" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+        <mxGraphModel dx="346" dy="267" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
             <root>
                 <mxCell id="fJXzg9hcczes7OQ8a_7G-0"/>
                 <mxCell id="fJXzg9hcczes7OQ8a_7G-1" parent="fJXzg9hcczes7OQ8a_7G-0"/>
