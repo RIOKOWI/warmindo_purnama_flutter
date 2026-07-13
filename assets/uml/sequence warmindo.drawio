@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" pages="18">
     <diagram id="EioePG5kWoMvvPgvLX4g" name="buat pesanan">
-        <mxGraphModel dx="1015" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1753" dy="1067" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -1967,7 +1967,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="G8bhMF75Tk6WGcTkkc-_" name="kelola produk">
-        <mxGraphModel dx="738" dy="436" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="3156" dy="1920" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -2349,7 +2349,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="IzuuVdQdIif1jTu5JLNA" name="laporan penjualan">
-        <mxGraphModel dx="2030" dy="1200" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1578" dy="960" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -2982,7 +2982,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="XnrnD3HpoC7I7oXFlwux" name="pembayaran">
-        <mxGraphModel dx="855" dy="505" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1753" dy="1067" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
