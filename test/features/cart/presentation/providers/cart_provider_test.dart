@@ -427,16 +427,38 @@ void main() {
     });
 
     group('totalItemCount', () {
+      test('harus return sum dari semua quantity', () async {
+        // arrange
+        provider.items.add(tCartItem1); // quantity: 2
+        provider.items.add(tCartItem2); // quantity: 1
+
+        // act
+        final count = provider.totalItemCount;
+
+        // assert - sum of all quantities = 2 + 1 = 3
+        expect(count, 3);
+      });
+
+      test('harus return 0 ketika items kosong', () {
+        expect(provider.totalItemCount, 0);
+      });
+    });
+
+    group('uniqueItemCount', () {
       test('harus return count unique items', () async {
         // arrange
         provider.items.add(tCartItem1);
         provider.items.add(tCartItem2);
 
         // act
-        final count = provider.totalItemCount;
+        final count = provider.uniqueItemCount;
 
-        // assert
+        // assert - count of unique products = 2
         expect(count, 2);
+      });
+
+      test('harus return 0 ketika items kosong', () {
+        expect(provider.uniqueItemCount, 0);
       });
     });
   });

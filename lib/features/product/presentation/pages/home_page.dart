@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/routes/app_router.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../cart/presentation/providers/cart_provider.dart';
-import '../providers/product_provider.dart';
-import '../widgets/category_filter_widget.dart';
-import '../widgets/product_grid.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/features/product/presentation/providers/product_provider.dart';
+import 'package:warmindo_purnama_flutter/features/product/presentation/widgets/category_filter_widget.dart';
+import 'package:warmindo_purnama_flutter/features/product/presentation/widgets/product_grid.dart';
 
-/// Home page displaying products and categories
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -19,7 +17,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch data after first frame is rendered
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductProvider>().init();
     });
@@ -27,53 +24,33 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.read<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menu'),
-        actions: [
-          Consumer<CartProvider>(
-            builder: (_, cart, __) => Stack(
+      backgroundColor: AppColors.background,
+      appBar: NeoAppBar(
+        title: 'MENU',
+      ),
+      body: Consumer<ProductProvider>(
+        builder: (context, provider, _) {
+          return RefreshIndicator(
+            onRefresh: provider.refresh,
+            color: AppColors.accent,
+            child: Column(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.shopping_cart),
-                  onPressed: () =>
-                      Navigator.pushNamed(context, AppRouter.cart),
-                ),
-                if (cart.totalItemCount > 0)
-                  Positioned(
-                    right: 6,
-                    top: 6,
-                    child: CircleAvatar(
-                      radius: 8,
-                      child: Text(
-                        '${cart.totalItemCount}',
-                        style: const TextStyle(fontSize: 10),
-                      ),
+                const CategoryFilterWidget(),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.background,
                     ),
+                    child: const ProductGrid(),
                   ),
+                ),
               ],
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.receipt_long),
-            onPressed: () => Navigator.pushNamed(context, AppRouter.orderList),
-            tooltip: 'Pesanan Saya',
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => auth.logout(),
-          ),
-        ],
-      ),
-      body: const Column(
-        children: [
-          CategoryFilterWidget(),
-          Expanded(
-            child: ProductGrid(),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -1,11 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/guards/auth_guard.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../checkout/data/models/order_model.dart';
+import '../../../checkout/data/models/order_item_model.dart';
 import '../providers/order_provider.dart';
 import '../widgets/order_status_badge.dart';
+
+/// Fake data for skeleton loading
+final _fakeOrder = OrderModel(
+  id: 1,
+  invoiceNumber: 'INV-2024-00001',
+  userId: 1,
+  orderTypeId: 1,
+  subtotal: 75000,
+  totalAmount: 82500,
+  status: 'pending',
+  notes: null,
+  orderItems: const [
+    OrderItemModel(
+      id: 1,
+      orderId: 1,
+      productId: 1,
+      productName: 'Nasi Goreng',
+      quantity: 2,
+      productPrice: 25000,
+      subtotal: 50000,
+    ),
+    OrderItemModel(
+      id: 2,
+      orderId: 1,
+      productId: 2,
+      productName: 'Es Teh Manis',
+      quantity: 2,
+      productPrice: 5000,
+      subtotal: 10000,
+    ),
+    OrderItemModel(
+      id: 3,
+      orderId: 1,
+      productId: 3,
+      productName: 'Ayam Geprek',
+      quantity: 1,
+      productPrice: 15000,
+      subtotal: 15000,
+    ),
+  ],
+);
 
 /// Page displaying order detail with cancel functionality
 class OrderDetailPage extends StatefulWidget {
@@ -55,7 +98,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ),
         body: Consumer<OrderProvider>(
           builder: (context, provider, _) {
-            return _buildBody(context, provider);
+            return RefreshIndicator(
+              onRefresh: () => provider.fetchOrderDetail(widget.orderId),
+              child: _buildBody(context, provider),
+            );
           },
         ),
       ),
@@ -63,13 +109,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildBody(BuildContext context, OrderProvider provider) {
-    // Loading state
-    if (provider.isLoadingDetail) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     // Error or null state
-    final order = provider.selectedOrder;
+    final order = provider.isLoadingDetail ? _fakeOrder : provider.selectedOrder;
     if (order == null) {
       return Center(
         child: Column(
@@ -97,131 +138,134 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       decimalDigits: 0,
     );
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Status badge
-          Center(child: OrderStatusBadge(status: order.status)),
-          const SizedBox(height: 16),
-
-          // Order info
-          _OrderInfo(order: order),
-          const Divider(height: 32),
-
-          // Order items header
-          const Text(
-            'Item Pesanan',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Order items list
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: order.orderItems.length,
-            itemBuilder: (context, index) {
-              return _OrderItemTile(item: order.orderItems[index]);
-            },
-          ),
-
-          const Divider(height: 32),
-
-          // Total
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                currencyFormat.format(order.totalAmount),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepOrange,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Error message
-          if (provider.errorMessage != null) ...[
-            Text(
-              provider.errorMessage!,
-              style: const TextStyle(color: Colors.red),
-            ),
+    return Skeletonizer(
+      enabled: provider.isLoadingDetail,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Status badge
+            Center(child: OrderStatusBadge(status: order.status)),
             const SizedBox(height: 16),
-          ],
 
-          // Bayar button (only for pending orders with existing payment)
-          if (order.status == 'pending' && order.payment != null) ...[
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: provider.isLoadingPayment
-                    ? null
-                    : () => _onTapBayar(context, order),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-                child: provider.isLoadingPayment
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Bayar'),
+            // Order info
+            _OrderInfo(order: order),
+            const Divider(height: 32),
+
+            // Order items header
+            const Text(
+              'Item Pesanan',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-          ],
 
-          // Cancel button (only for pending orders)
-          if (order.status == 'pending')
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: provider.isCancelling
-                    ? null
-                    : () => _confirmCancel(context, provider),
-                icon: provider.isCancelling
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.cancel_outlined, color: Colors.red),
-                label: Text(
-                  provider.isCancelling ? 'Membatalkan...' : 'Batalkan Pesanan',
+            // Order items list
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: order.orderItems.length,
+              itemBuilder: (context, index) {
+                return _OrderItemTile(item: order.orderItems[index]);
+              },
+            ),
+
+            const Divider(height: 32),
+
+            // Total
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Total',
                   style: TextStyle(
-                    color: provider.isCancelling ? Colors.grey : Colors.red,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: const BorderSide(color: Colors.red),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                Text(
+                  currencyFormat.format(order.totalAmount),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Error message
+            if (provider.errorMessage != null && !provider.isLoadingDetail) ...[
+              Text(
+                provider.errorMessage!,
+                style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Bayar button (only for pending orders with existing payment)
+            if (order.status == 'pending' && order.payment != null && !provider.isLoadingDetail) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: provider.isLoadingPayment
+                      ? null
+                      : () => _onTapBayar(context, order),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepOrange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: provider.isLoadingPayment
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Bayar'),
                 ),
               ),
-            ),
-        ],
+              const SizedBox(height: 8),
+            ],
+
+            // Cancel button (only for pending orders)
+            if (order.status == 'pending' && !provider.isLoadingDetail)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: provider.isCancelling
+                      ? null
+                      : () => _confirmCancel(context, provider),
+                  icon: provider.isCancelling
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.cancel_outlined, color: Colors.red),
+                  label: Text(
+                    provider.isCancelling ? 'Membatalkan...' : 'Batalkan Pesanan',
+                    style: TextStyle(
+                      color: provider.isCancelling ? Colors.grey : Colors.red,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

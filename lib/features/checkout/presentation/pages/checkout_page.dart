@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/routes/app_router.dart';
-import '../../../cart/presentation/providers/cart_provider.dart';
-import '../providers/checkout_provider.dart';
-import '../widgets/order_type_selector.dart';
-import '../widgets/table_selector.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
+import 'package:warmindo_purnama_flutter/features/cart/presentation/providers/cart_provider.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_type_model.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/presentation/providers/checkout_provider.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/presentation/widgets/order_type_selector.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/presentation/widgets/table_selector.dart';
 
-/// Checkout page for confirming order and selecting order type/table
+/// Fake data for skeleton loading
+final _fakeOrderTypes = [
+  const OrderTypeModel(id: 1, name: 'dine_in'),
+  const OrderTypeModel(id: 2, name: 'take_away'),
+];
+
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
 
@@ -37,9 +49,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final checkout = context.watch<CheckoutProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Konfirmasi Pesanan'),
-      ),
+      backgroundColor: AppColors.background,
+      appBar: const NeoAppBar(title: 'KONFIRMASI PESANAN', showBackButton: true),
       body: _buildBody(checkout),
       bottomNavigationBar: _BottomSubmitBar(
         checkout: checkout,
@@ -49,82 +60,99 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildBody(CheckoutProvider checkout) {
-    if (checkout.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
     if (checkout.errorMessage != null && checkout.orderTypes.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(checkout.errorMessage!),
+            Text(checkout.errorMessage!, style: AppTextStyles.body),
             const SizedBox(height: 16),
-            ElevatedButton(
+            NeoButtonSmall(
+              label: 'Coba lagi',
               onPressed: () => checkout.init(),
-              child: const Text('Coba lagi'),
             ),
           ],
         ),
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _OrderSummary(),
-          const Divider(height: 32),
-          const Text(
-            'Tipe Pesanan',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+    final orderTypes = checkout.isLoading && checkout.orderTypes.isEmpty ? _fakeOrderTypes : checkout.orderTypes;
+
+    return Skeletonizer(
+      enabled: checkout.isLoading && checkout.orderTypes.isEmpty,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _OrderSummary(),
+            Container(
+              height: 3,
+              color: AppColors.dark,
+              margin: const EdgeInsets.symmetric(vertical: 16),
             ),
-          ),
-          const SizedBox(height: 12),
-          OrderTypeSelector(
-            orderTypes: checkout.orderTypes,
-            selected: checkout.selectedOrderType,
-            onSelect: checkout.selectOrderType,
-          ),
-          if (checkout.isDineIn) ...[
-            const SizedBox(height: 24),
-            const Text(
-              'Pilih Meja',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('TIPE PESANAN', style: AppTextStyles.title),
             const SizedBox(height: 12),
-            TableSelector(
-              tables: checkout.availableTables,
-              selected: checkout.selectedTable,
-              onSelect: checkout.selectTable,
+            OrderTypeSelector(
+              orderTypes: orderTypes,
+              selected: checkout.selectedOrderType,
+              onSelect: checkout.selectOrderType,
             ),
+            if (checkout.isDineIn) ...[
+              const SizedBox(height: 24),
+              Text('PILIH MEJA', style: AppTextStyles.title),
+              const SizedBox(height: 12),
+              TableSelector(
+                tables: checkout.availableTables,
+                selected: checkout.selectedTable,
+                onSelect: checkout.selectTable,
+              ),
+            ],
+            const SizedBox(height: 24),
+            Text('CATATAN', style: AppTextStyles.title),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(
+                hintText: 'Opsional...',
+                filled: true,
+                fillColor: AppColors.card,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.dark, width: 3),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.dark, width: 3),
+                ),
+              ),
+              maxLines: 2,
+              onChanged: checkout.setNotes,
+            ),
+            if (checkout.errorMessage != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.error, width: 3),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.error),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(checkout.errorMessage!,
+                          style: AppTextStyles.body.copyWith(color: AppColors.error)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 100),
           ],
-          const SizedBox(height: 24),
-          TextFormField(
-            controller: _notesController,
-            decoration: const InputDecoration(
-              labelText: 'Catatan (opsional)',
-              border: OutlineInputBorder(),
-            ),
-            maxLines: 2,
-            onChanged: checkout.setNotes,
-          ),
-          if (checkout.errorMessage != null) ...[
-            const SizedBox(height: 16),
-            Text(
-              checkout.errorMessage!,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -135,30 +163,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (!mounted) return;
 
     if (success) {
-      // 1. Clear local cart
-      context.read<CartProvider>().clearLocal();
-
-      // 2. Get orderId
+      final cart = context.read<CartProvider>();
+      final totalAmount = cart.totalPrice;
+      cart.clearLocal();
       final orderId = checkout.createdOrder!.id;
 
-      // 3. Navigate to payment
       if (mounted) {
         Navigator.pushReplacementNamed(
           context,
           AppRouter.payment,
-          arguments: PaymentRouteArgs(orderId: orderId),
+          arguments: PaymentRouteArgs(
+            orderId: orderId,
+            totalAmount: totalAmount,
+          ),
         );
       }
-
-      // 4. Reset checkout state
       checkout.reset();
     } else {
-      // Show error SnackBar
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(checkout.errorMessage ?? 'Gagal membuat pesanan'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -166,7 +192,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 }
 
-/// Order summary widget showing cart items and total
 class _OrderSummary extends StatelessWidget {
   const _OrderSummary();
 
@@ -175,74 +200,71 @@ class _OrderSummary extends StatelessWidget {
     final cart = context.watch<CartProvider>();
     final currencyFormat = NumberFormat('#,###');
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Ringkasan Pesanan',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return NeoCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('RINGKASAN PESANAN', style: AppTextStyles.title),
+          const SizedBox(height: 12),
+          if (cart.items.isEmpty)
+            Text('Tidak ada item', style: AppTextStyles.body)
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: cart.items.length,
+              itemBuilder: (_, i) {
+                final item = cart.items[i];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item.product.name, style: AppTextStyles.body),
+                            Text('Qty: ${item.quantity}',
+                                style: AppTextStyles.caption),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        'Rp ${currencyFormat.format(item.subtotal)}',
+                        style: AppTextStyles.body,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          Container(
+            height: 2,
+            color: AppColors.dark,
+            margin: const EdgeInsets.symmetric(vertical: 12),
           ),
-        ),
-        const SizedBox(height: 12),
-        if (cart.items.isEmpty)
-          const Text('Tidak ada item di keranjang')
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: cart.items.length,
-            itemBuilder: (_, i) {
-              final item = cart.items[i];
-              return ListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                title: Text(item.product.name),
-                subtitle: Text('Qty: ${item.quantity}'),
-                trailing: Text(
-                  'Rp ${currencyFormat.format(item.subtotal)}',
-                ),
-              );
-            },
-          ),
-        const Divider(),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Total',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text('TOTAL', style: AppTextStyles.title),
               Text(
                 'Rp ${currencyFormat.format(cart.totalPrice)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyles.headline.copyWith(color: AppColors.accent),
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-/// Bottom submit bar with total and submit button
 class _BottomSubmitBar extends StatelessWidget {
   final CheckoutProvider checkout;
   final VoidCallback onSubmit;
 
-  const _BottomSubmitBar({
-    required this.checkout,
-    required this.onSubmit,
-  });
+  const _BottomSubmitBar({required this.checkout, required this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -254,27 +276,23 @@ class _BottomSubmitBar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.2),
-              blurRadius: 4,
-              offset: const Offset(0, -2),
-            ),
-          ],
+          color: AppColors.card,
+          border: const Border(top: BorderSide(color: AppColors.dark, width: 3)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isDineInNoTable)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Pilih meja terlebih dahulu',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontStyle: FontStyle.italic,
-                  ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline,
+                        color: AppColors.warning, size: 18),
+                    const SizedBox(width: 8),
+                    Text('Pilih meja terlebih dahulu',
+                        style: AppTextStyles.caption.copyWith(color: AppColors.warning)),
+                  ],
                 ),
               ),
             Row(
@@ -283,31 +301,18 @@ class _BottomSubmitBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Total'),
+                    Text('Total', style: AppTextStyles.caption),
                     Text(
                       'Rp ${currencyFormat.format(cart.totalPrice)}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.headline,
                     ),
                   ],
                 ),
                 const Spacer(),
-                ElevatedButton(
-                  onPressed: checkout.isSubmitting
-                      ? null
-                      : (!checkout.canSubmit ? null : onSubmit),
-                  child: checkout.isSubmitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Buat Pesanan'),
+                NeoButton(
+                  label: 'BUAT PESANAN',
+                  isLoading: checkout.isSubmitting,
+                  onPressed: checkout.canSubmit ? onSubmit : null,
                 ),
               ],
             ),

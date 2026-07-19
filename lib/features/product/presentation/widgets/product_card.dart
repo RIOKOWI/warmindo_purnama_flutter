@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../cart/presentation/providers/cart_provider.dart';
-import '../../data/models/product_model.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/features/cart/presentation/providers/cart_provider.dart';
+import 'package:warmindo_purnama_flutter/features/product/data/models/product_model.dart';
 
-/// Card widget displaying a single product
+/// Neo Brutalism card widget displaying a single product
 class ProductCard extends StatelessWidget {
   const ProductCard({
     super.key,
@@ -17,66 +19,128 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final priceFormat = NumberFormat('#,###', 'id_ID');
 
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Expanded(
-            child: product.imageUrl.isNotEmpty
-                ? Image.network(
-                    product.imageUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
-                  )
-                : const Center(
-                    child: Icon(Icons.image_not_supported),
-                  ),
-          ),
-          // Info
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Name
-                Text(
-                  product.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                // Description
-                Text(
-                  product.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                // Price
-                Text(
-                  'Rp ${priceFormat.format(product.price)}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                // Stock info
-                Text(
-                  product.isAvailable ? 'Stok: ${product.stock}' : 'Habis',
-                ),
-                const SizedBox(height: 8),
-                // Add button - disabled if out of stock
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: product.isAvailable ? () => _addToCart(context) : null,
-                    child: Text(product.isAvailable ? 'Tambah' : 'Habis'),
-                  ),
-                ),
-              ],
+    return GestureDetector(
+      onTap: product.isAvailable ? () => _addToCart(context) : null,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.dark, width: 3),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.dark,
+              offset: Offset(6, 6),
+              blurRadius: 0,
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            Expanded(
+              flex: 3,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(17),
+                    topRight: Radius.circular(17),
+                  ),
+                ),
+                child: product.imageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(17),
+                          topRight: Radius.circular(17),
+                        ),
+                        child: Image.network(
+                          product.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Icon(Icons.fastfood,
+                                size: 40, color: AppColors.accent),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Icon(Icons.fastfood,
+                            size: 40, color: AppColors.accent),
+                      ),
+              ),
+            ),
+            // Info
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.title.copyWith(fontSize: 13),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      product.description,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(fontSize: 11),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'Rp ${priceFormat.format(product.price)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.body.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.accent,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: product.isAvailable
+                                ? AppColors.success.withValues(alpha: 0.1)
+                                : AppColors.error.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: product.isAvailable
+                                  ? AppColors.success
+                                  : AppColors.error,
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            product.isAvailable ? 'Stok: ${product.stock}' : 'Habis',
+                            style: AppTextStyles.caption.copyWith(
+                              color: product.isAvailable
+                                  ? AppColors.success
+                                  : AppColors.error,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -88,6 +152,7 @@ class ProductCard extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product.name} ditambahkan ke keranjang'),
+        backgroundColor: AppColors.dark,
       ),
     );
   }

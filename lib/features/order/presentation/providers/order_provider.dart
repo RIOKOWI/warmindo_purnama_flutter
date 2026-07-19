@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../../checkout/data/models/order_model.dart';
 import '../../../../core/services/dio_client.dart';
 import '../../../../core/services/secure_storage.dart';
@@ -9,6 +10,7 @@ import '../../../payment/domain/repositories/payment_repository_impl.dart';
 import '../../data/datasources/order_remote_datasource.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../../domain/repositories/order_repository_impl.dart';
+import '../../services/print_service.dart';
 
 /// Provider for order state management
 class OrderProvider extends ChangeNotifier {
@@ -17,10 +19,12 @@ class OrderProvider extends ChangeNotifier {
             dataSource: OrderRemoteDataSource(
               throw StateError('DioClient must be provided via main.dart'),
             ),
-          );
+          ),
+       _printService = PrintService();
 
   final OrderRepository _repository;
   final Logger _log = Logger();
+  final PrintService _printService;
 
   // State
   List<OrderModel> _orders = [];
@@ -68,7 +72,11 @@ class OrderProvider extends ChangeNotifier {
       _log.i('[OrderProvider] Fetched ${result.orders.length} orders, hasNextPage: $_hasNextPage');
     } catch (e, st) {
       _log.e('[OrderProvider] Failed to fetch orders', error: e, stackTrace: st);
-      _errorMessage = 'Gagal memuat pesanan';
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
     } finally {
       _isLoadingList = false;
       notifyListeners();
@@ -96,7 +104,11 @@ class OrderProvider extends ChangeNotifier {
       _log.i('[OrderProvider] Order detail fetched: ${_selectedOrder?.invoiceNumber}');
     } catch (e, st) {
       _log.e('[OrderProvider] Failed to fetch order detail: $orderId', error: e, stackTrace: st);
-      _errorMessage = 'Gagal memuat detail pesanan';
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
     } finally {
       _isLoadingDetail = false;
       notifyListeners();
@@ -128,7 +140,11 @@ class OrderProvider extends ChangeNotifier {
       return true;
     } catch (e, st) {
       _log.e('[OrderProvider] Failed to cancel order: $orderId', error: e, stackTrace: st);
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       return false;
     } finally {
       _isCancelling = false;
@@ -168,7 +184,11 @@ class OrderProvider extends ChangeNotifier {
       return payment;
     } catch (e, st) {
       _log.e('[OrderProvider] Gagal ambil payment detail', error: e, stackTrace: st);
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       return null;
     } finally {
       _isLoadingPayment = false;
@@ -181,6 +201,65 @@ class OrderProvider extends ChangeNotifier {
     _selectedOrder = null;
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Print order receipt via Bluetooth printer
+  /// Returns true if print was successful
+  Future<bool> printOrderReceipt(OrderModel order, String cashierName, BuildContext context) async {
+    try {
+      _log.i('[OrderProvider] Starting print for order: ${order.invoiceNumber}');
+
+      // Select Bluetooth device
+      final device = await _printService.selectDevice(context);
+      if (device == null) {
+        _log.w('[OrderProvider] No device selected for printing');
+        return false;
+      }
+
+      // Build receipt data
+      final receiptData = _buildReceiptData(order, cashierName);
+
+      // Print receipt
+      final success = await _printService.printReceipt(
+        address: device.address,
+        orderData: receiptData,
+      );
+
+      if (success) {
+        _log.i('[OrderProvider] Receipt printed successfully');
+      } else {
+        _log.e('[OrderProvider] Failed to print receipt');
+      }
+
+      return success;
+    } catch (e, st) {
+      _log.e('[OrderProvider] Print error', error: e, stackTrace: st);
+      return false;
+    }
+  }
+
+  /// Build receipt data from order
+  Map<String, dynamic> _buildReceiptData(OrderModel order, String cashierName) {
+    final items = order.orderItems.map((item) => {
+      'name': item.productName,
+      'qty': item.quantity,
+      'price': item.subtotal,
+    }).toList();
+
+    // Calculate tax (10%)
+    final subtotal = order.subtotal;
+    final tax = (subtotal * 0.1).round();
+    final total = order.totalAmount;
+
+    return {
+      'invoice': order.invoiceNumber,
+      'date': DateTime.now().toString().split('.').first,
+      'cashier': cashierName,
+      'items': items,
+      'subtotal': subtotal,
+      'tax': tax,
+      'total': total,
+    };
   }
 
   // For testing purposes only

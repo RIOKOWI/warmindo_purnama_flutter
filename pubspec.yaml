@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  firebase_core: ^4.6.0
+  firebase_core: ^3.0.0
   skeletonizer: ^2.1.3
   flutter_secure_storage: ^10.0.0
   dio: ^5.9.2
@@ -47,6 +47,18 @@ dependencies:
   intl: ^0.20.2
   gal: ^2.3.2
   screenshot: ^3.0.0
+  image_picker: ^1.2.2
+  image_cropper: ^12.2.1
+  firebase_messaging: ^15.0.0
+  flutter_local_notifications: ^17.0.0
+  google_fonts: ^8.1.0
+  flutter_svg: ^2.0.10+1
+  flutter_bluetooth_printer: ^2.24.0
+  pdf: ^3.12.0
+  printing: ^5.14.0
+  path_provider: ^2.1.5
+  fl_chart: ^1.2.0
+  lottie: ^3.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -56,12 +68,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -77,6 +85,12 @@ flutter:
   # Environment variables
   assets:
     - .env
+    - assets/
+    - assets/lottie/
+    - assets/images/payments/
+    - assets/icons/
+
+    
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -103,3 +117,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/warmindo-icon.jpeg"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/warmindo-icon.jpeg"

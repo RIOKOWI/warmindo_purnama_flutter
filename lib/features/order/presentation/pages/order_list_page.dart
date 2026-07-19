@@ -1,13 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/routes/app_router.dart';
-import '../../../../core/guards/auth_guard.dart';
-import '../../../checkout/data/models/order_model.dart';
-import '../providers/order_provider.dart';
-import '../widgets/order_status_badge.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:warmindo_purnama_flutter/core/routes/app_router.dart';
+import 'package:warmindo_purnama_flutter/core/guards/auth_guard.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_colors.dart';
+import 'package:warmindo_purnama_flutter/core/theme/app_text_styles.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_app_bar.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_card.dart';
+import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_model.dart';
+import 'package:warmindo_purnama_flutter/features/checkout/data/models/order_item_model.dart';
+import 'package:warmindo_purnama_flutter/features/order/presentation/providers/order_provider.dart';
+import 'package:warmindo_purnama_flutter/features/order/presentation/widgets/order_status_badge.dart';
 
-/// Page displaying list of user's orders with pagination
+/// Fake data for skeleton loading
+final _fakeOrders = List.generate(
+  7,
+  (i) => OrderModel(
+    id: i + 1,
+    invoiceNumber: 'INV-2024-${(i + 1).toString().padLeft(5, '0')}',
+    userId: 1,
+    orderTypeId: 1,
+    subtotal: 50000,
+    totalAmount: 55000,
+    status: 'pending',
+    orderItems: [
+      const OrderItemModel(
+        id: 1,
+        orderId: 1,
+        productId: 1,
+        productName: 'Nasi Goreng',
+        quantity: 2,
+        productPrice: 25000,
+        subtotal: 50000,
+      ),
+    ],
+  ),
+);
+
 class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
 
@@ -16,48 +48,37 @@ class OrderListPage extends StatefulWidget {
 }
 
 class _OrderListPageState extends State<OrderListPage> {
-  late final ScrollController _scrollController;
-
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<OrderProvider>();
-      provider.fetchOrders(refresh: true);
+      context.read<OrderProvider>().fetchOrders(refresh: true);
     });
-
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      context.read<OrderProvider>().loadMore();
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AuthGuard(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Pesanan Saya'),
-          backgroundColor: Colors.deepOrange,
-          foregroundColor: Colors.white,
-        ),
+        backgroundColor: AppColors.background,
+        appBar: const NeoAppBar(title: 'PESANAN'),
         body: Consumer<OrderProvider>(
           builder: (context, provider, _) {
             return RefreshIndicator(
               onRefresh: () => provider.fetchOrders(refresh: true),
-              child: _buildBody(provider),
+              color: AppColors.accent,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollEndNotification &&
+                      notification.metrics.pixels >=
+                          notification.metrics.maxScrollExtent - 200) {
+                    provider.loadMore();
+                  }
+                  return false;
+                },
+                child: _buildBody(provider),
+              ),
             );
           },
         ),
@@ -66,116 +87,164 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   Widget _buildBody(OrderProvider provider) {
-    if (provider.isLoadingList && provider.orders.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     if (provider.errorMessage != null && provider.orders.isEmpty) {
       return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              provider.errorMessage!,
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
+            Text(provider.errorMessage!, style: AppTextStyles.body),
             const SizedBox(height: 16),
-            ElevatedButton(
+            NeoButtonSmall(
+              label: 'Coba lagi',
               onPressed: () => provider.fetchOrders(refresh: true),
-              child: const Text('Coba lagi'),
             ),
           ],
         ),
       );
     }
 
-    if (provider.orders.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.receipt_long,
-              size: 64,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Belum ada pesanan',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
+    final data = provider.isLoadingList && provider.orders.isEmpty ? _fakeOrders : provider.orders;
+
+    return Skeletonizer(
+      enabled: provider.isLoadingList && provider.orders.isEmpty,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: data.isEmpty ? 1 : data.length + (provider.hasNextPage ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (data.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 100),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.dark, width: 3),
+                      ),
+                      child: Icon(Icons.receipt_long,
+                          size: 48, color: AppColors.text.withValues(alpha: 0.5)),
+                    ),
+                    const SizedBox(height: 16),
+                    Text('Belum ada pesanan', style: AppTextStyles.headline),
+                    const SizedBox(height: 8),
+                    Text('Yuk mulai pesan!', style: AppTextStyles.body),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    }
+            );
+          }
 
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: provider.orders.length + (provider.hasNextPage ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == provider.orders.length) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+          if (index == data.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+            );
+          }
+
+          final order = data[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _OrderListTile(order: order),
           );
-        }
-
-        final order = provider.orders[index];
-        return _OrderListTile(order: order);
-      },
+        },
+      ),
     );
   }
 }
 
-/// Individual order tile in the list
 class _OrderListTile extends StatelessWidget {
   const _OrderListTile({required this.order});
 
   final OrderModel order;
 
+  bool _canPrint(BuildContext context) {
+    final role = context.read<AuthProvider>().role;
+    return role == 'kasir' || role == 'admin';
+  }
+
+  Future<void> _printOrder(BuildContext context) async {
+    final cashierName = context.read<AuthProvider>().name ?? 'Kasir';
+    final provider = context.read<OrderProvider>();
+
+    final success = await provider.printOrderReceipt(order, cashierName, context);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success ? 'Struk berhasil dicetak' : 'Gagal mencetak struk'),
+          backgroundColor: success ? AppColors.success : AppColors.error,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
+    final currencyFormat = NumberFormat('#,###');
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          order.invoiceNumber,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              '${order.orderItems.length} item · ${currencyFormat.format(order.totalAmount)}',
-              style: const TextStyle(color: Colors.grey),
+    return NeoCard(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRouter.orderDetail,
+          arguments: order.id,
+        );
+      },
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.dark, width: 2),
             ),
-            const SizedBox(height: 8),
-            OrderStatusBadge(status: order.status),
+            child: const Icon(Icons.receipt_long, color: AppColors.accent),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  order.invoiceNumber,
+                  style: AppTextStyles.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${order.orderItems.length} item · Rp ${currencyFormat.format(order.totalAmount)}',
+                  style: AppTextStyles.body.copyWith(color: AppColors.textLight),
+                ),
+                const SizedBox(height: 8),
+                OrderStatusBadge(status: order.status),
+              ],
+            ),
+          ),
+          if (_canPrint(context)) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _printOrder(context),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.success, width: 2),
+                ),
+                child: const Icon(Icons.print, color: AppColors.success, size: 20),
+              ),
+            ),
           ],
-        ),
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            AppRouter.orderDetail,
-            arguments: order.id,
-          );
-        },
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right, color: AppColors.text),
+        ],
       ),
     );
   }

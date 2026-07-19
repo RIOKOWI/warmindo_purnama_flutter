@@ -1,18 +1,23 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../../auth/domain/auth_status.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/data/models/user_model.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/dio_client.dart';
+import '../../../../core/services/notification_service.dart';
 
 /// Authentication provider using ChangeNotifier pattern.
 ///
 /// Manages login, register, logout, and auto-login functionality.
+/// FCM token registration is handled after a successful login session.
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _authRepository;
+  final DioClient _dioClient;
   final Logger _log = Logger();
 
-  AuthProvider(this._authRepository);
+  AuthProvider(this._authRepository, this._dioClient);
 
   AuthStatus _status = AuthStatus.initial;
   UserModel? _currentUser;
@@ -79,13 +84,17 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _currentUser = user;
-      _status = AuthStatus.authenticated;
+      await _saveSession();
       _errorMessage = null;
       notifyListeners();
       return true;
     } catch (e) {
       _status = AuthStatus.error;
-      _errorMessage = _parseError(e);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       notifyListeners();
       return false;
     }
@@ -107,13 +116,17 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _currentUser = user;
-      _status = AuthStatus.authenticated;
+      await _saveSession();
       _errorMessage = null;
       notifyListeners();
       return true;
     } catch (e) {
       _status = AuthStatus.error;
-      _errorMessage = _parseError(e);
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       notifyListeners();
       return false;
     }
@@ -137,34 +150,29 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Parse error to Indonesian error message
-  String _parseError(dynamic e) {
-    if (e is DioException) {
-      // Try to get message from response data first
-      if (e.response?.data is Map) {
-        final message = (e.response!.data as Map)['message'];
-        if (message != null && message.toString().isNotEmpty) {
-          return message.toString();
-        }
-      }
-
-      // Fallback to status code based messages
-      switch (e.response?.statusCode) {
-        case 401:
-          return 'Email atau password salah.';
-        case 422:
-          return 'Data tidak valid. Periksa kembali inputan Anda.';
-        case 500:
-          return 'Server sedang bermasalah. Coba lagi nanti.';
-        default:
-          if (e.type == DioExceptionType.connectionError ||
-              e.type == DioExceptionType.connectionTimeout ||
-              e.type == DioExceptionType.receiveTimeout) {
-            return 'Tidak ada koneksi internet.';
-          }
-          return 'Terjadi kesalahan. Coba lagi.';
-      }
+  /// Menyimpan sesi login dan menginisialisasi FCM.
+  ///
+  /// FCM init dilakukan setelah token tersimpan.
+  /// Jika FCM gagal, login tetap berhasil (silent fail).
+  Future<void> _saveSession() async {
+    // Init FCM — WAJIB setelah token tersimpan, WAJIB wrapped try-catch
+    try {
+      await NotificationService.initialize(
+        onTokenReceived: (fcmToken) async {
+          await _dioClient.dio.patch(
+            ApiConstants.fcmToken,
+            data: {'fcm_token': fcmToken},
+          );
+          _log.i('[AuthProvider] FCM token berhasil dikirim ke backend');
+        },
+      );
+    } catch (e, st) {
+      // Silent fail — login tetap sukses meski FCM gagal
+      _log.w('[AuthProvider] FCM init gagal (non-critical): $e\n$st');
     }
-    return e.toString();
+
+    // Set status authenticated SETELAH FCM setup (atau setelah FCM gagal)
+    _status = AuthStatus.authenticated;
+    notifyListeners();
   }
 }

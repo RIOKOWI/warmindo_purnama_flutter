@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/errors/error_handler.dart';
 import '../../../../core/services/dio_client.dart';
 import '../../../checkout/data/models/order_model.dart';
 import '../../data/models/order_list_model.dart';
@@ -22,9 +22,9 @@ class OrderRemoteDataSource {
       );
       _log.d('[OrderRemoteDataSource] Orders fetched successfully');
       return OrderListModel.fromJson(response.data);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[OrderRemoteDataSource] Failed to fetch orders', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -37,9 +37,9 @@ class OrderRemoteDataSource {
       );
       _log.d('[OrderRemoteDataSource] Order detail fetched successfully');
       return OrderModel.fromJson(response.data['data']);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[OrderRemoteDataSource] Failed to fetch order detail: $orderId', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -52,9 +52,9 @@ class OrderRemoteDataSource {
       );
       _log.d('[OrderRemoteDataSource] Order cancelled successfully');
       return OrderModel.fromJson(response.data['data']);
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[OrderRemoteDataSource] Failed to cancel order: $orderId', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:warmindo_purnama_flutter/core/errors/app_exception.dart';
 import '../../../../core/constants/payment_constants.dart';
 import '../../data/models/payment_model.dart';
 import '../../data/models/create_payment_request_model.dart';
@@ -13,6 +14,8 @@ class PaymentProvider extends ChangeNotifier {
 
   final PaymentRepository? _repository;
   final Logger _log = Logger();
+
+  int totalAmount = 0;
 
   PaymentMethod _selectedMethod = PaymentMethod.qris;
   PaymentModel? _payment;
@@ -78,7 +81,11 @@ class PaymentProvider extends ChangeNotifier {
       return true;
     } catch (e, st) {
       _log.e('[PaymentProvider] Failed to create payment', error: e, stackTrace: st);
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e is AppException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+      }
       _isCreating = false;
       notifyListeners();
       return false;

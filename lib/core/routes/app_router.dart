@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:warmindo_purnama_flutter/core/guards/auth_guard.dart';
 import 'package:warmindo_purnama_flutter/core/services/dio_client.dart';
 import 'package:warmindo_purnama_flutter/core/services/secure_storage.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/admin_shell.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/customer_shell.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/kasir_shell.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/register_page.dart';
 import 'package:warmindo_purnama_flutter/features/cart/presentation/pages/cart_page.dart';
@@ -14,22 +18,35 @@ import 'package:warmindo_purnama_flutter/features/payment/domain/repositories/pa
 import 'package:warmindo_purnama_flutter/features/payment/presentation/pages/payment_page.dart';
 import 'package:warmindo_purnama_flutter/features/payment/presentation/providers/payment_provider.dart';
 import 'package:warmindo_purnama_flutter/features/product/presentation/pages/home_page.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/table_status_page.dart';
+import 'package:warmindo_purnama_flutter/features/kasir/dashboard/presentation/pages/payment_list_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/product_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/category_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/user_manage_page.dart';
+import 'package:warmindo_purnama_flutter/features/admin/dashboard/presentation/pages/analytics_page.dart';
+import 'package:warmindo_purnama_flutter/features/profile/presentation/pages/profile_page.dart';
 
 /// Arguments for payment route
 /// Can hold just orderId (new payment) or orderId + existingPayment (resuming payment)
 class PaymentRouteArgs {
   final int orderId;
   final PaymentModel? existingPayment;
+  final int totalAmount;
 
   const PaymentRouteArgs({
     required this.orderId,
     this.existingPayment,
+    this.totalAmount = 0,
   });
 }
 
 /// App router with named routes configuration.
 class AppRouter {
   AppRouter._();
+
+  /// Global navigator key — digunakan oleh NotificationService untuk navigasi
+  /// dari luar context (tap notifikasi background/terminated).
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   /// Named routes
   static const String splash = '/';
@@ -42,6 +59,18 @@ class AppRouter {
   static const String payment = '/payment';
   static const String orderList = '/orders';
   static const String orderDetail = '/order-detail';
+  static const String tableStatus = '/kasir/tables';
+  static const String paymentList = '/kasir/payments';
+  static const String productManage = '/admin/products';
+  static const String categoryManage = '/admin/categories';
+  static const String userManage = '/admin/users';
+  static const String analytics = '/admin/analytics';
+  static const String profile = '/profile';
+
+  // Shell routes per role
+  static const String adminShell = '/admin';
+  static const String kasirShell = '/kasir';
+  static const String customerShell = '/customer';
 
   /// Route generator function
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -51,11 +80,20 @@ class AppRouter {
       case register:
         return _buildRoute(const RegisterPage(), settings);
       case home:
-        return _buildRoute(const HomePage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const HomePage()),
+          settings,
+        );
       case cart:
-        return _buildRoute(const CartPage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const CartPage()),
+          settings,
+        );
       case checkout:
-        return _buildRoute(const CheckoutPage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const CheckoutPage()),
+          settings,
+        );
       case payment:
         final args = settings.arguments as PaymentRouteArgs;
         // Create scoped PaymentProvider for each payment session
@@ -63,24 +101,102 @@ class AppRouter {
         final paymentDataSource = PaymentRemoteDataSource(dioClient);
         final paymentRepository = PaymentRepositoryImpl(dataSource: paymentDataSource);
         return _buildRoute(
-          ChangeNotifierProvider(
-            create: (_) {
-              final provider = PaymentProvider(repository: paymentRepository);
-              // If there's an existing payment, set it immediately
-              if (args.existingPayment != null) {
-                provider.setExistingPayment(args.existingPayment!);
-              }
-              return provider;
-            },
-            child: PaymentPage(orderId: args.orderId),
+          AuthGuard(
+            child: ChangeNotifierProvider(
+              create: (_) {
+                final provider = PaymentProvider(repository: paymentRepository);
+                // If there's an existing payment, set it immediately
+                if (args.existingPayment != null) {
+                  provider.setExistingPayment(args.existingPayment!);
+                }
+                // Set total amount for payment method availability
+                provider.totalAmount = args.totalAmount;
+                return provider;
+              },
+              child: PaymentPage(orderId: args.orderId, totalAmount: args.totalAmount),
+            ),
           ),
           settings,
         );
       case orderList:
-        return _buildRoute(const OrderListPage(), settings);
+        return _buildRoute(
+          AuthGuard(child: const OrderListPage()),
+          settings,
+        );
       case orderDetail:
         final orderId = settings.arguments as int;
-        return _buildRoute(OrderDetailPage(orderId: orderId), settings);
+        return _buildRoute(
+          AuthGuard(child: OrderDetailPage(orderId: orderId)),
+          settings,
+        );
+      case tableStatus:
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['kasir'],
+            child: const TableStatusPage(),
+          ),
+          settings,
+        );
+      case paymentList:
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['kasir'],
+            child: const PaymentListPage(),
+          ),
+          settings,
+        );
+      case productManage:
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const ProductManagePage(),
+          ),
+          settings,
+        );
+      case categoryManage:
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const CategoryManagePage(),
+          ),
+          settings,
+        );
+      case userManage:
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const UserManagePage(),
+          ),
+          settings,
+        );
+      case analytics:
+        return _buildRoute(
+          RoleGuard(
+            allowedRoles: const ['admin'],
+            child: const AnalyticsPage(),
+          ),
+          settings,
+        );
+      case profile:
+        return _buildRoute(
+          AuthGuard(child: const ProfilePage()),
+          settings,
+        );
+      case adminShell:
+        return _buildRoute(
+          RoleGuard(allowedRoles: const ['admin'], child: const AdminShell()),
+          settings,
+        );
+      case kasirShell:
+        return _buildRoute(
+          RoleGuard(allowedRoles: const ['kasir'], child: const KasirShell()),
+          settings,
+        );
+      case customerShell:
+        return _buildRoute(
+          AuthGuard(child: const CustomerShell()),
+          settings,
+        );
       case dashboard:
         return _buildRoute(const _DashboardPage(), settings);
       default:

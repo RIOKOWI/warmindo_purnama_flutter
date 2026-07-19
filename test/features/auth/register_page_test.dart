@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_text_field.dart';
+import 'package:warmindo_purnama_flutter/core/widgets/neo/neo_button.dart';
 import 'package:warmindo_purnama_flutter/features/auth/domain/auth_status.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/providers/auth_provider.dart';
 import 'package:warmindo_purnama_flutter/features/auth/presentation/pages/register_page.dart';
@@ -16,6 +18,7 @@ void main() {
     when(mockAuthProvider.isLoading).thenReturn(false);
     when(mockAuthProvider.status).thenReturn(AuthStatus.unauthenticated);
     when(mockAuthProvider.errorMessage).thenReturn(null);
+    when(mockAuthProvider.role).thenReturn('customer');
   });
 
   Widget buildWidget() => ChangeNotifierProvider<AuthProvider>.value(
@@ -28,17 +31,17 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Semua 4 field harus ada
-      expect(find.byType(TextFormField), findsNWidgets(4));
-      expect(find.widgetWithText(TextFormField, 'Nama'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Nomor HP'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
+      expect(find.byType(NeoTextField), findsNWidgets(4));
+      expect(find.widgetWithText(NeoTextField, 'Nama'), findsOneWidget);
+      expect(find.widgetWithText(NeoTextField, 'Email'), findsOneWidget);
+      expect(find.widgetWithText(NeoTextField, 'Nomor HP'), findsOneWidget);
+      expect(find.widgetWithText(NeoTextField, 'Password'), findsOneWidget);
     });
 
-    testWidgets('tampil ElevatedButton "Daftar"', (tester) async {
+    testWidgets('tampil NeoButton "DAFTAR"', (tester) async {
       await tester.pumpWidget(buildWidget());
 
-      expect(find.widgetWithText(ElevatedButton, 'Daftar'), findsOneWidget);
+      expect(find.widgetWithText(NeoButton, 'DAFTAR'), findsOneWidget);
     });
 
     testWidgets('tampil TextButton "Sudah punya akun? Login"', (tester) async {
@@ -53,7 +56,7 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Tap tombol daftar tanpa isi apapun
-      await tester.tap(find.text('Daftar'));
+      await tester.tap(find.text('DAFTAR'));
       await tester.pump();
 
       // Semua field error
@@ -67,11 +70,11 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Isi semua field dengan benar, kecuali password tanpa kapital
-      await tester.enterText(find.byType(TextFormField).at(0), 'Test User'); // nama
-      await tester.enterText(find.byType(TextFormField).at(1), 'test@email.com'); // email
-      await tester.enterText(find.byType(TextFormField).at(2), '089512345678'); // phone
-      await tester.enterText(find.byType(TextFormField).at(3), 'test123!'); // password tanpa kapital
-      await tester.tap(find.text('Daftar'));
+      await tester.enterText(find.byType(TextField).at(0), 'Test User'); // nama
+      await tester.enterText(find.byType(TextField).at(1), 'test@email.com'); // email
+      await tester.enterText(find.byType(TextField).at(2), '089512345678'); // phone
+      await tester.enterText(find.byType(TextField).at(3), 'test123!'); // password tanpa kapital
+      await tester.tap(find.text('DAFTAR'));
       await tester.pump();
 
       expect(find.text('Harus ada huruf kapital'), findsOneWidget);
@@ -81,11 +84,11 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Isi semua field dengan benar, kecuali password tanpa angka
-      await tester.enterText(find.byType(TextFormField).at(0), 'Test User');
-      await tester.enterText(find.byType(TextFormField).at(1), 'test@email.com');
-      await tester.enterText(find.byType(TextFormField).at(2), '089512345678');
-      await tester.enterText(find.byType(TextFormField).at(3), 'TestUser!'); // password tanpa angka
-      await tester.tap(find.text('Daftar'));
+      await tester.enterText(find.byType(TextField).at(0), 'Test User');
+      await tester.enterText(find.byType(TextField).at(1), 'test@email.com');
+      await tester.enterText(find.byType(TextField).at(2), '089512345678');
+      await tester.enterText(find.byType(TextField).at(3), 'TestUser!'); // password tanpa angka
+      await tester.tap(find.text('DAFTAR'));
       await tester.pump();
 
       expect(find.text('Harus ada angka'), findsOneWidget);
@@ -95,25 +98,32 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Isi semua field dengan benar, kecuali password tanpa simbol
-      await tester.enterText(find.byType(TextFormField).at(0), 'Test User');
-      await tester.enterText(find.byType(TextFormField).at(1), 'test@email.com');
-      await tester.enterText(find.byType(TextFormField).at(2), '089512345678');
-      await tester.enterText(find.byType(TextFormField).at(3), 'TestUser123'); // password tanpa simbol
-      await tester.tap(find.text('Daftar'));
+      await tester.enterText(find.byType(TextField).at(0), 'Test User');
+      await tester.enterText(find.byType(TextField).at(1), 'test@email.com');
+      await tester.enterText(find.byType(TextField).at(2), '089512345678');
+      await tester.enterText(find.byType(TextField).at(3), 'TestUser123'); // password tanpa simbol
+      await tester.tap(find.text('DAFTAR'));
       await tester.pump();
 
       expect(find.text('Harus ada simbol'), findsOneWidget);
     });
 
     testWidgets('validasi password: lengkap (kapital + angka + simbol) → tidak ada error', (tester) async {
+      when(mockAuthProvider.register(
+        name: anyNamed('name'),
+        email: anyNamed('email'),
+        phone: anyNamed('phone'),
+        password: anyNamed('password'),
+      )).thenAnswer((_) async => true);
+
       await tester.pumpWidget(buildWidget());
 
       // Isi semua field dengan benar
-      await tester.enterText(find.byType(TextFormField).at(0), 'Test User');
-      await tester.enterText(find.byType(TextFormField).at(1), 'test@email.com');
-      await tester.enterText(find.byType(TextFormField).at(2), '089512345678');
-      await tester.enterText(find.byType(TextFormField).at(3), 'TestUser123!'); // password lengkap
-      await tester.tap(find.text('Daftar'));
+      await tester.enterText(find.byType(TextField).at(0), 'Test User');
+      await tester.enterText(find.byType(TextField).at(1), 'test@email.com');
+      await tester.enterText(find.byType(TextField).at(2), '089512345678');
+      await tester.enterText(find.byType(TextField).at(3), 'TestUser123!'); // password lengkap
+      await tester.tap(find.text('DAFTAR'));
       await tester.pump();
 
       // Tidak boleh ada error message
@@ -135,11 +145,11 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Enter all fields
-      await tester.enterText(find.byType(TextFormField).at(0), 'Test User');
-      await tester.enterText(find.byType(TextFormField).at(1), 'test@email.com');
-      await tester.enterText(find.byType(TextFormField).at(2), '089512345678');
-      await tester.enterText(find.byType(TextFormField).at(3), 'TestUser123!');
-      await tester.tap(find.text('Daftar'));
+      await tester.enterText(find.byType(TextField).at(0), 'Test User');
+      await tester.enterText(find.byType(TextField).at(1), 'test@email.com');
+      await tester.enterText(find.byType(TextField).at(2), '089512345678');
+      await tester.enterText(find.byType(TextField).at(3), 'TestUser123!');
+      await tester.tap(find.text('DAFTAR'));
       await tester.pump();
 
       verify(mockAuthProvider.register(
@@ -152,13 +162,13 @@ void main() {
   });
 
   group('RegisterPage - loading state', () {
-    testWidgets('tombol Daftar disable saat isLoading true', (tester) async {
+    testWidgets('tombol NeoButton disable saat isLoading true', (tester) async {
       when(mockAuthProvider.isLoading).thenReturn(true);
 
       await tester.pumpWidget(buildWidget());
 
-      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-      expect(button.onPressed, isNull); // null = disabled
+      final button = tester.widget<NeoButton>(find.byType(NeoButton));
+      expect(button.isLoading, isTrue);
     });
 
     testWidgets('CircularProgressIndicator muncul di dalam tombol saat isLoading true', (tester) async {
@@ -183,11 +193,11 @@ void main() {
       await tester.pumpWidget(buildWidget());
 
       // Enter valid fields
-      await tester.enterText(find.byType(TextFormField).at(0), 'Test User');
-      await tester.enterText(find.byType(TextFormField).at(1), 'test@email.com');
-      await tester.enterText(find.byType(TextFormField).at(2), '089512345678');
-      await tester.enterText(find.byType(TextFormField).at(3), 'TestUser123!');
-      await tester.tap(find.text('Daftar'));
+      await tester.enterText(find.byType(TextField).at(0), 'Test User');
+      await tester.enterText(find.byType(TextField).at(1), 'test@email.com');
+      await tester.enterText(find.byType(TextField).at(2), '089512345678');
+      await tester.enterText(find.byType(TextField).at(3), 'TestUser123!');
+      await tester.tap(find.text('DAFTAR'));
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackBar), findsOneWidget);

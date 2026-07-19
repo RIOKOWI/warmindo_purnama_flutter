@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/errors/error_handler.dart';
 import '../../../../core/services/dio_client.dart';
 import '../models/order_type_model.dart';
 import '../models/table_model.dart';
@@ -25,9 +25,9 @@ class CheckoutRemoteDataSource {
           .toList();
       _log.d('[CheckoutRemoteDataSource] Retrieved ${orderTypes.length} order types');
       return orderTypes;
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CheckoutRemoteDataSource] Failed to fetch order types', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -42,9 +42,9 @@ class CheckoutRemoteDataSource {
           .toList();
       _log.d('[CheckoutRemoteDataSource] Retrieved ${tables.length} available tables');
       return tables;
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CheckoutRemoteDataSource] Failed to fetch available tables', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 
@@ -59,9 +59,9 @@ class CheckoutRemoteDataSource {
       final order = OrderModel.fromJson(response.data['data'] as Map<String, dynamic>);
       _log.d('[CheckoutRemoteDataSource] Order created: ${order.invoiceNumber}');
       return order;
-    } on DioException catch (e, st) {
+    } catch (e, st) {
       _log.e('[CheckoutRemoteDataSource] Failed to create order', error: e, stackTrace: st);
-      rethrow;
+      throw ErrorHandler.handle(e);
     }
   }
 }
