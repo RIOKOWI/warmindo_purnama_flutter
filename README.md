@@ -374,7 +374,7 @@ flutter pub get
 cp .env.example .env
 
 # Edit .env file
-# BASE_URL=https://achyar.my.id/api/v1/
+# BASE_URL=https://
 # API_TIMEOUT=30000
 ```
 
@@ -813,16 +813,6 @@ GoRoute(
   ),
 )
 ```
-
-### 9.7 Checklist Sebelum Commit
-
-- [ ] Apakah route baru sudah didaftarkan di `app_router.dart`?
-- [ ] Apakah provider baru sudah didaftarkan di `main.dart`?
-- [ ] Apakah import yang diperlukan sudah ditambahkan?
-- [ ] Apakah navigation sudah tersedia?
-- [ ] Apakah test sudah dibuat/update?
-- [ ] Apakah `flutter analyze` aman?
-- [ ] Apakah `flutter test` lolos?
 
 ---
 
